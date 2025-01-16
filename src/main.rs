@@ -89,14 +89,16 @@ fn main() {
             Arg::new("list-repos")
                 .long("list-repos")
                 .short('l')
-                .help("Lists all repositories being managed"),
+                .help("Lists all repositories being managed")
+                .action(clap::ArgAction::SetTrue),
         )
         // pull all repos
         .arg(
             Arg::new("pull-all")
                 .long("pull-all")
                 .short('p')
-                .help("Pulls all managed repositories"),
+                .help("Pulls all managed repositories.")
+                .action(clap::ArgAction::SetTrue),
         )
         .get_matches();
 
@@ -114,11 +116,11 @@ fn main() {
         remove_repo(repo_path, &config_path);
     }
     // list repos
-    else if matches.contains_id("list-repos") {
+    else if matches.get_flag("list-repos") {
         list_repos(&config_path);
     }
     // pull all repos
-    else if matches.contains_id("pull-all") {
+    else if matches.get_flag("pull-all") {
         let config_content = std::fs::read_to_string(&config_path)
             .unwrap_or_else(|_| panic!("Failed to read config file at {:?}", config_path));
 

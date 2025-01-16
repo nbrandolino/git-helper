@@ -66,10 +66,19 @@ fn pull_all(repo_path: &str) {
     }
 }
 
+// ensure the config dir exists
+fn ensure_config_dir_exists(config_path: &Path) {
+    if let Some(parent_dir) = config_path.parent() {
+        if !parent_dir.exists() {
+            std::fs::create_dir_all(parent_dir).expect("Failed to create configuration directory");
+        }
+    }
+}
+
 // main function
 fn main() {
     let matches = Command::new("git-helper")
-        .version("1.2.0")
+        .version("1.3.0")
         .author("nbrandolino")
         .about("A helper tool for managing multiple git repositories")
         // add repo to config file
@@ -106,10 +115,13 @@ fn main() {
         )
         .get_matches();
 
-    // set config file
+    // set config file path
     let config_path = dirs_next::home_dir()
         .expect("Unable to find home directory")
         .join(".config/git-helper/git-helper.conf");
+
+    // ensure config dir exists
+    ensure_config_dir_exists(&config_path);
 
     // add repo
     if let Some(repo_path) = matches.get_one::<String>("add-repo") {

@@ -1,4 +1,5 @@
 use dirs_next;
+use std::env;
 
 fn pull_repo(repo_path: &str) {
     let path = std::path::Path::new(repo_path);
@@ -35,17 +36,23 @@ fn pull_repo(repo_path: &str) {
 
 // main function
 fn main() {
-    let config_path = dirs_next::home_dir()
-        .expect("Unable to find home directory")
-        .join(".config/git-helper/git-helper.conf");
+    let args: Vec<String> = env::args().collect();
 
-    let config_content = std::fs::read_to_string(&config_path)
-        .unwrap_or_else(|_| panic!("Failed to read config file at {:?}", config_path));
+    if args.len() == 2 && (args[1] == "-pa" || args[1] == "--pull-all") {
+        let config_path = dirs_next::home_dir()
+            .expect("Unable to find home directory")
+            .join(".config/git-helper/git-helper.conf");
 
-    for line in config_content.lines() {
-        let repo_path = line.trim();
-        if !repo_path.is_empty() {
-            pull_repo(repo_path);
+        let config_content = std::fs::read_to_string(&config_path)
+            .unwrap_or_else(|_| panic!("Failed to read config file at {:?}", config_path));
+
+        for line in config_content.lines() {
+            let repo_path = line.trim();
+            if !repo_path.is_empty() {
+                pull_repo(repo_path);
+            }
         }
+    } else {
+        eprintln!("Usage: {} -pa|--pull-all", args[0]);
     }
 }

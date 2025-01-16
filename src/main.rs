@@ -69,7 +69,7 @@ fn pull_all(repo_path: &str) {
 // main function
 fn main() {
     let matches = Command::new("git-helper")
-        .version("1.2")
+        .version("1.2.0")
         .author("nbrandolino")
         .about("A helper tool for managing multiple git repositories")
         // add repo to config file

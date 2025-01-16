@@ -25,7 +25,7 @@ git-helper [options]
     ```
 2. Remove repository:
     ```bash
-    git-helper -r /path/to/repo
+    git-helper -r repo-name
     ```
 3. List all repositories:
     ```bash

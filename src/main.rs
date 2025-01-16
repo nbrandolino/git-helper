@@ -97,7 +97,7 @@ fn main() {
             Arg::new("pull-all")
                 .long("pull-all")
                 .short('p')
-                .help("Pulls all managed repositories.")
+                .help("Pulls all managed repositories")
                 .action(clap::ArgAction::SetTrue),
         )
         .get_matches();

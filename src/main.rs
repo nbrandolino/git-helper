@@ -1,6 +1,6 @@
 use clap::{Command, Arg, value_parser};
 use dirs_next;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 // ensure the config dir exists
 fn ensure_config_dir_exists(config_path: &Path) {
@@ -8,6 +8,21 @@ fn ensure_config_dir_exists(config_path: &Path) {
         if !parent_dir.exists() {
             std::fs::create_dir_all(parent_dir).expect("Failed to create configuration directory");
         }
+    }
+}
+
+// expand path (resolves `~` and `.`)
+fn expand_path(input: &str) -> PathBuf {
+    if input == "." {
+        std::env::current_dir().expect("Unable to resolve current directory")
+    } else if input.starts_with("~") {
+        if let Some(home_dir) = dirs_next::home_dir() {
+            home_dir.join(&input[1..])
+        } else {
+            panic!("Unable to determine home directory");
+        }
+    } else {
+        PathBuf::from(input)
     }
 }
 
@@ -78,7 +93,7 @@ fn pull_all(repo_path: &str) {
 // main function
 fn main() {
     let matches = Command::new("git-helper")
-        .version("1.3.0")
+        .version("1.3.1")
         .author("nbrandolino")
         .about("A helper tool for managing multiple git repositories")
         // add repo to config file
@@ -125,7 +140,11 @@ fn main() {
 
     // add repo
     if let Some(repo_path) = matches.get_one::<String>("add-repo") {
-        add_repo(repo_path, &config_path);
+        let expanded_path = expand_path(repo_path);
+        add_repo(
+            expanded_path.to_str().expect("Failed to convert path to string"),
+            &config_path,
+        );
     }
     // remove repo by path or name
     else if let Some(repo_identifier) = matches.get_one::<String>("remove-repo") {

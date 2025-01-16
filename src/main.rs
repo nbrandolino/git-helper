@@ -1,28 +1,32 @@
 use clap::{Command, Arg, value_parser};
 use dirs_next;
+use std::path::Path;
 
 // add repo function
-fn add_repo(repo_path: &str, config_path: &std::path::Path) {
+fn add_repo(repo_path: &str, config_path: &Path) {
     let mut config_content = std::fs::read_to_string(config_path).unwrap_or_default();
     config_content.push_str(&format!("{}\n", repo_path));
     std::fs::write(config_path, config_content).expect("Failed to write to config file");
     println!("Added repository: {}", repo_path);
 }
 
-// remove repo function
-fn remove_repo(repo_path: &str, config_path: &std::path::Path) {
+// remove repo function (by path or name)
+fn remove_repo(repo_identifier: &str, config_path: &Path) {
     let config_content = std::fs::read_to_string(config_path).unwrap_or_default();
     let new_content: String = config_content
         .lines()
-        .filter(|line| line.trim() != repo_path)
+        .filter(|line| {
+            let trimmed = line.trim();
+            trimmed != repo_identifier && !trimmed.contains(repo_identifier)
+        })
         .map(|line| format!("{}\n", line))
         .collect();
     std::fs::write(config_path, new_content).expect("Failed to write to config file");
-    println!("Removed repository: {}", repo_path);
+    println!("Removed repository: {}", repo_identifier);
 }
 
 // list repos function
-fn list_repos(config_path: &std::path::Path) {
+fn list_repos(config_path: &Path) {
     let config_content = std::fs::read_to_string(config_path).unwrap_or_default();
     println!("Configured repositories:");
     for line in config_content.lines() {
@@ -32,7 +36,7 @@ fn list_repos(config_path: &std::path::Path) {
 
 // pull all repos function
 fn pull_all(repo_path: &str) {
-    let path = std::path::Path::new(repo_path);
+    let path = Path::new(repo_path);
 
     if !path.exists() || !path.is_dir() {
         eprintln!("Path does not exist or is not a directory: {}", repo_path);
@@ -65,7 +69,7 @@ fn pull_all(repo_path: &str) {
 // main function
 fn main() {
     let matches = Command::new("git-helper")
-        .version("1.1")
+        .version("1.2")
         .author("nbrandolino")
         .about("A helper tool for managing multiple git repositories")
         // add repo to config file
@@ -76,12 +80,12 @@ fn main() {
                 .help("Adds a new repository to be managed")
                 .value_parser(value_parser!(String)),
         )
-        // remove repo from config file
+        // remove repo from config file (by path or name)
         .arg(
             Arg::new("remove-repo")
                 .long("remove-repo")
                 .short('r')
-                .help("Removes a repository from being managed")
+                .help("Removes a repository by path or name")
                 .value_parser(value_parser!(String)),
         )
         // list repos
@@ -111,9 +115,9 @@ fn main() {
     if let Some(repo_path) = matches.get_one::<String>("add-repo") {
         add_repo(repo_path, &config_path);
     }
-    // remove repo
-    else if let Some(repo_path) = matches.get_one::<String>("remove-repo") {
-        remove_repo(repo_path, &config_path);
+    // remove repo by path or name
+    else if let Some(repo_identifier) = matches.get_one::<String>("remove-repo") {
+        remove_repo(repo_identifier, &config_path);
     }
     // list repos
     else if matches.get_flag("list-repos") {

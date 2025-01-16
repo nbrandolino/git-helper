@@ -2,6 +2,15 @@ use clap::{Command, Arg, value_parser};
 use dirs_next;
 use std::path::Path;
 
+// ensure the config dir exists
+fn ensure_config_dir_exists(config_path: &Path) {
+    if let Some(parent_dir) = config_path.parent() {
+        if !parent_dir.exists() {
+            std::fs::create_dir_all(parent_dir).expect("Failed to create configuration directory");
+        }
+    }
+}
+
 // add repo function
 fn add_repo(repo_path: &str, config_path: &Path) {
     let mut config_content = std::fs::read_to_string(config_path).unwrap_or_default();
@@ -62,15 +71,6 @@ fn pull_all(repo_path: &str) {
         }
         Err(err) => {
             eprintln!("Error pulling repository at {}: {:?}", repo_path, err);
-        }
-    }
-}
-
-// ensure the config dir exists
-fn ensure_config_dir_exists(config_path: &Path) {
-    if let Some(parent_dir) = config_path.parent() {
-        if !parent_dir.exists() {
-            std::fs::create_dir_all(parent_dir).expect("Failed to create configuration directory");
         }
     }
 }

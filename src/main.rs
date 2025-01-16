@@ -1,7 +1,27 @@
 use dirs_next;
 use std::env;
 
-fn pull_repo(repo_path: &str) {
+// show help info
+fn show_help() {
+    println!("Usage: git-helper [options]");
+    println!("");
+    println!("Options:");
+    println!("    -h, --help                  Display this help message.");
+    println!("    -v, --version               Display version information.");
+    println!("    -pa, --pull-all             Pull all repos in config file.");
+    println!("");
+    println!("Example:");
+    println!("    $ git-helper -pa");
+}
+
+// show version info
+fn show_version() {
+    println!("git-helper Version 1.0");
+    println!("Licensed under the terms of the GNU General Public License.");
+}
+
+// pull all function
+fn pull_all(repo_path: &str) {
     let path = std::path::Path::new(repo_path);
 
     // checks to see if the paths in the config file exist or not
@@ -38,7 +58,16 @@ fn pull_repo(repo_path: &str) {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    if args.len() == 2 && (args[1] == "-pa" || args[1] == "--pull-all") {
+    // help check
+    if args.len() == 2 && (args[1] == "-h" || args[1] == "--help") {
+        show_help()
+    }
+    // version check
+    else if args.len() == 2 && (args[1] == "-v" || args[1] == "--version") {
+        show_version()
+    }
+    // pull all check
+    else if args.len() == 2 && (args[1] == "-pa" || args[1] == "--pull-all") {
         let config_path = dirs_next::home_dir()
             .expect("Unable to find home directory")
             .join(".config/git-helper/git-helper.conf");
@@ -49,10 +78,11 @@ fn main() {
         for line in config_content.lines() {
             let repo_path = line.trim();
             if !repo_path.is_empty() {
-                pull_repo(repo_path);
+                pull_all(repo_path);
             }
         }
-    } else {
-        eprintln!("Usage: {} -pa|--pull-all", args[0]);
+    }
+    else {
+        show_help()
     }
 }

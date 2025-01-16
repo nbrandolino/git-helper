@@ -11,13 +11,14 @@ git-helper [options]
 ```
 
 ### Options:
-- `-h, --help`: Print help
-- `-v, --version`: Print version
+- `-h, --help`: Display help information.
+- `-v, --version`: Display version information.
+- `-pa, --pull-all`: Pull all repositories in config file.
 
 ### Examples
-1. TBD:
+1. Pull all repositories:
    ```bash
-   TBD
+   git-helper -pa
    ```
 
 ## Build and Install

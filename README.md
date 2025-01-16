@@ -13,13 +13,28 @@ git-helper [options]
 ### Options:
 - `-h, --help`: Display help information.
 - `-v, --version`: Display version information.
-- `-pa, --pull-all`: Pull all repositories in config file.
+- `-a, --add-repo`: Adds a new repository to be managed.
+- `-r, --remove-repo`: Removes a repository from being managed.
+- `-l, --list-repos`: Lists all repositories being managed.
+- `-p, --pull-all`: Pulls all managed repositories.
 
 ### Examples
-1. Pull all repositories:
+1. Add repository:
    ```bash
-   git-helper -pa
+   git-helper -a /path/to/repo
    ```
+2. Remove repository:
+  ```bash
+  git-helper -r /path/to/repo
+  ```
+3. List all repositories:
+   ```bash
+   git-helper -l
+   ```
+4. Pull all repositories:
+  ```bash
+  git-helper -p
+  ```
 
 ## Build and Install
 To build the project, ensure you have `rust` installed, then compile the code as follows:

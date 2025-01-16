@@ -5,3 +5,4 @@ authors = ["nbrandolino nickbrandolino134@gmail.com"]
 edition = "2021"
 
 [dependencies]
+dirs-next = "2.0"

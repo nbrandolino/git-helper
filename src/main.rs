@@ -1,4 +1,4 @@
-use clap::{Command, Arg};
+use clap::{Command, Arg, value_parser};
 use dirs_next;
 
 // add repo function
@@ -67,35 +67,37 @@ fn main() {
     let matches = Command::new("git-helper")
         .version("1.1")
         .author("nbrandolino")
-        .about("A helper tool for managing multiple git repositories.")
+        .about("A helper tool for managing multiple git repositories")
         // add repo to config file
-        .subcommand(
-            Command::new("add-repo")
-                .about("Adds a new repository to be managed.")
-                .arg(
-                    Arg::new("repo")
-                        .help("Full path to the repository.")
-                        .required(true),
-                ),
+        .arg(
+            Arg::new("add-repo")
+                .long("add-repo")
+                .short('a')
+                .help("Adds a new repository to be managed")
+                .value_parser(value_parser!(String)),
         )
         // remove repo from config file
-        .subcommand(
-            Command::new("remove-repo")
-                .about("Removes a repository from being managed.")
-                .arg(
-                    Arg::new("repo")
-                        .help("Full path to the repository.")
-                        .required(true),
-                ),
+        .arg(
+            Arg::new("remove-repo")
+                .long("remove-repo")
+                .short('r')
+                .help("Removes a repository from being managed")
+                .value_parser(value_parser!(String)),
         )
         // list repos
-        .subcommand(
-            Command::new("list-repos")
-                .about("Lists all repositories being managed."))
+        .arg(
+            Arg::new("list-repos")
+                .long("list-repos")
+                .short('l')
+                .help("Lists all repositories being managed"),
+        )
         // pull all repos
-        .subcommand(
-            Command::new("pull-all")
-                .about("Pulls all managed repositories."))
+        .arg(
+            Arg::new("pull-all")
+                .long("pull-all")
+                .short('p')
+                .help("Pulls all managed repositories"),
+        )
         .get_matches();
 
     // set config file
@@ -104,21 +106,19 @@ fn main() {
         .join(".config/git-helper/git-helper.conf");
 
     // add repo
-    if let Some(matches) = matches.subcommand_matches("add-repo") {
-        let repo_path = matches.get_one::<String>("repo").unwrap();
+    if let Some(repo_path) = matches.get_one::<String>("add-repo") {
         add_repo(repo_path, &config_path);
     }
     // remove repo
-    else if let Some(matches) = matches.subcommand_matches("remove-repo") {
-        let repo_path = matches.get_one::<String>("repo").unwrap();
+    else if let Some(repo_path) = matches.get_one::<String>("remove-repo") {
         remove_repo(repo_path, &config_path);
     }
     // list repos
-    else if let Some(_) = matches.subcommand_matches("list-repos") {
+    else if matches.contains_id("list-repos") {
         list_repos(&config_path);
     }
-    // pull all repo
-    else if let Some(_) = matches.subcommand_matches("pull-all") {
+    // pull all repos
+    else if matches.contains_id("pull-all") {
         let config_content = std::fs::read_to_string(&config_path)
             .unwrap_or_else(|_| panic!("Failed to read config file at {:?}", config_path));
 
@@ -129,8 +129,8 @@ fn main() {
             }
         }
     }
-    // if no arguments are passed the help menu will display
+    // if no arguments are passed, display the help menu
     else {
-        println!("Test");
+        println!("No action specified. Use --help for usage.");
     }
 }

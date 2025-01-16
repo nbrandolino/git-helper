@@ -1,30 +1,10 @@
+use clap::{Command, Arg};
 use dirs_next;
-use std::env;
-
-// show help info
-fn show_help() {
-    println!("Usage: git-helper [options]");
-    println!("");
-    println!("Options:");
-    println!("    -h, --help                  Display this help message.");
-    println!("    -v, --version               Display version information.");
-    println!("    -pa, --pull-all             Pull all repos in config file.");
-    println!("");
-    println!("Example:");
-    println!("    $ git-helper -pa");
-}
-
-// show version info
-fn show_version() {
-    println!("git-helper Version 1.0");
-    println!("Licensed under the terms of the GNU General Public License.");
-}
 
 // pull all function
 fn pull_all(repo_path: &str) {
     let path = std::path::Path::new(repo_path);
 
-    // checks to see if the paths in the config file exist or not
     if !path.exists() || !path.is_dir() {
         eprintln!("Path does not exist or is not a directory: {}", repo_path);
         return;
@@ -32,7 +12,6 @@ fn pull_all(repo_path: &str) {
 
     println!("Pulling repository at: {}", repo_path);
 
-    // run the git pull command
     let output = std::process::Command::new("git")
         .arg("-C")
         .arg(repo_path)
@@ -54,24 +33,72 @@ fn pull_all(repo_path: &str) {
     }
 }
 
-// main function
+fn add_repo(repo_path: &str, config_path: &std::path::Path) {
+    let mut config_content = std::fs::read_to_string(config_path).unwrap_or_default();
+    config_content.push_str(&format!("{}\n", repo_path));
+    std::fs::write(config_path, config_content).expect("Failed to write to config file");
+    println!("Added repository: {}", repo_path);
+}
+
+fn remove_repo(repo_path: &str, config_path: &std::path::Path) {
+    let config_content = std::fs::read_to_string(config_path).unwrap_or_default();
+    let new_content: String = config_content
+        .lines()
+        .filter(|line| line.trim() != repo_path)
+        .map(|line| format!("{}\n", line))
+        .collect();
+    std::fs::write(config_path, new_content).expect("Failed to write to config file");
+    println!("Removed repository: {}", repo_path);
+}
+
+fn list_repos(config_path: &std::path::Path) {
+    let config_content = std::fs::read_to_string(config_path).unwrap_or_default();
+    println!("Configured repositories:");
+    for line in config_content.lines() {
+        println!("- {}", line);
+    }
+}
+
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let matches = Command::new("git-helper")
+        .version("1.1")
+        .author("nbrandolino")
+        .about("A helper tool for managing multiple git repositories.")
+        .subcommand(
+            Command::new("add-repo")
+                .about("Adds a new repository to the config file.")
+                .arg(
+                    Arg::new("repo")
+                        .help("Full path to the repository.")
+                        .required(true),
+                ),
+        )
+        .subcommand(
+            Command::new("remove-repo")
+                .about("Removes a repository from the config file.")
+                .arg(
+                    Arg::new("repo")
+                        .help("Full path to the repository.")
+                        .required(true),
+                ),
+        )
+        .subcommand(Command::new("list-repos").about("Lists all repositories in the config file."))
+        .subcommand(Command::new("pull-all").about("Pulls all repositories."))
+        .get_matches();
 
-    // help check
-    if args.len() == 2 && (args[1] == "-h" || args[1] == "--help") {
-        show_help()
-    }
-    // version check
-    else if args.len() == 2 && (args[1] == "-v" || args[1] == "--version") {
-        show_version()
-    }
-    // pull all check
-    else if args.len() == 2 && (args[1] == "-pa" || args[1] == "--pull-all") {
-        let config_path = dirs_next::home_dir()
-            .expect("Unable to find home directory")
-            .join(".config/git-helper/git-helper.conf");
+    let config_path = dirs_next::home_dir()
+        .expect("Unable to find home directory")
+        .join(".config/git-helper/git-helper.conf");
 
+    if let Some(matches) = matches.subcommand_matches("add-repo") {
+        let repo_path = matches.get_one::<String>("repo").unwrap();
+        add_repo(repo_path, &config_path);
+    } else if let Some(matches) = matches.subcommand_matches("remove-repo") {
+        let repo_path = matches.get_one::<String>("repo").unwrap();
+        remove_repo(repo_path, &config_path);
+    } else if let Some(_) = matches.subcommand_matches("list-repos") {
+        list_repos(&config_path);
+    } else if let Some(_) = matches.subcommand_matches("pull-all") {
         let config_content = std::fs::read_to_string(&config_path)
             .unwrap_or_else(|_| panic!("Failed to read config file at {:?}", config_path));
 
@@ -81,8 +108,7 @@ fn main() {
                 pull_all(repo_path);
             }
         }
-    }
-    else {
-        show_help()
+    } else {
+        println!("Test");
     }
 }

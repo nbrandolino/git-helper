@@ -20,21 +20,21 @@ git-helper [options]
 
 ### Examples
 1. Add repository:
-   ```bash
-   git-helper -a /path/to/repo
-   ```
+    ```bash
+    git-helper -a /path/to/repo
+    ```
 2. Remove repository:
-  ```bash
-  git-helper -r /path/to/repo
-  ```
+    ```bash
+    git-helper -r /path/to/repo
+    ```
 3. List all repositories:
-   ```bash
-   git-helper -l
-   ```
+    ```bash
+    git-helper -l
+    ```
 4. Pull all repositories:
-  ```bash
-  git-helper -p
-  ```
+    ```bash
+    git-helper -p
+    ```
 
 ## Build and Install
 To build the project, ensure you have `rust` installed, then compile the code as follows:

@@ -49,6 +49,9 @@ cargo build --release
 cargo install --path .
 ```
 
+## Additional Information
+- The program creates and saves a config file located at `~/.config/git-helper/git-helper.toml`
+
 ## License
 This tool is licensed under the GNU General Public License (GPL). See ./LICENSE for more details.
 

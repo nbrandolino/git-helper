@@ -23,13 +23,15 @@ fn ensure_config_dir_exists(config_path: &Path) {
 fn expand_path(input: &str) -> PathBuf {
     if input == "." {
         std::env::current_dir().expect("Unable to resolve current directory")
-    } else if input.starts_with("~") {
-        if let Some(home_dir) = dirs_next::home_dir() {
-            home_dir.join(&input[1..])
-        } else {
-            panic!("Unable to determine home directory. Ensure the home directory is set correctly.");
-        }
-    } else {
+    }
+    else if input.starts_with("~") {
+        std::env::home_dir()
+            .map(|home_dir| home_dir.join(&input[1..]))
+            .unwrap_or_else(|| {
+                panic!("Unable to determine home directory. Please set HOME environment variable correctly.")
+            })
+    }
+    else {
         PathBuf::from(input)
     }
 }
@@ -51,17 +53,27 @@ fn validate_git_repo(repo_path: &Path) -> Result<(), String> {
 
 // read the config file
 fn read_config(config_path: &Path) -> Config {
-    if let Ok(content) = fs::read_to_string(config_path) {
-        toml::from_str(&content).unwrap_or_default()
-    } else {
-        Config::default()
+    match fs::read_to_string(config_path) {
+        Ok(content) => match toml::from_str(&content) {
+            Ok(config) => config,
+            Err(e) => {
+                eprintln!("Error parsing config: {}", e);
+                Config::default()
+            }
+        },
+        Err(e) => {
+            eprintln!("Error reading config file: {}", e);
+            Config::default()
+        }
     }
 }
 
 // write the config file
 fn write_config(config_path: &Path, config: &Config) {
     let content = toml::to_string(config).expect("Failed to serialize configuration");
-    fs::write(config_path, content).expect("Failed to write configuration file");
+    if let Err(err) = fs::write(config_path, content) {
+        eprintln!("Failed to write configuration: {}", err);
+    }
 }
 
 // add repo function
@@ -141,7 +153,7 @@ fn pull_all(repo_path: &str) {
 // main function
 fn main() {
     let matches = Command::new("git-helper")
-        .version("1.4.0")
+        .version("1.4.1")
         .author("nbrandolino")
         .about("A helper tool for managing multiple git repositories")
         // add repo to config file
@@ -180,11 +192,11 @@ fn main() {
 
     // set config file path
     let config_path = dirs_next::home_dir()
-    .map(|home| home.join(".config/git-helper/git-helper.toml"))
-    .unwrap_or_else(|| {
-        eprintln!("Unable to find home directory. Please set HOME environment variable correctly.");
-        std::process::exit(1);
-    });
+        .map(|home| home.join(".config/git-helper/git-helper.toml"))
+        .unwrap_or_else(|| {
+            eprintln!("Unable to find home directory. Please set HOME environment variable correctly.");
+            std::process::exit(1);
+        });
 
     // ensure config dir exists
     ensure_config_dir_exists(&config_path);

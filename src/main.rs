@@ -180,11 +180,11 @@ fn main() {
 
     // set config file path
     let config_path = dirs_next::home_dir()
-        .map(|home| home.join(".config/git-helper/git-helper.toml"))
-        .unwrap_or_else(|| {
-            eprintln!("Unable to find home directory. Please set HOME environment variable correctly.");
-            std::process::exit(1);
-        });
+    .map(|home| home.join(".config/git-helper/git-helper.toml"))
+    .unwrap_or_else(|| {
+        eprintln!("Unable to find home directory. Please set HOME environment variable correctly.");
+        std::process::exit(1);
+    });
 
     // ensure config dir exists
     ensure_config_dir_exists(&config_path);

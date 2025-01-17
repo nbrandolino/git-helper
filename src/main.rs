@@ -1,6 +1,14 @@
 use clap::{Command, Arg, value_parser};
 use dirs_next;
+use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
+use std::fs;
 use std::path::{Path, PathBuf};
+
+#[derive(Serialize, Deserialize, Default)]
+struct Config {
+    repositories: HashSet<String>,
+}
 
 // ensure the config dir exists
 fn ensure_config_dir_exists(config_path: &Path) {
@@ -41,6 +49,21 @@ fn validate_git_repo(repo_path: &Path) -> Result<(), String> {
     Ok(())
 }
 
+// read the config file
+fn read_config(config_path: &Path) -> Config {
+    if let Ok(content) = fs::read_to_string(config_path) {
+        toml::from_str(&content).unwrap_or_default()
+    } else {
+        Config::default()
+    }
+}
+
+// write the config file
+fn write_config(config_path: &Path, config: &Config) {
+    let content = toml::to_string(config).expect("Failed to serialize configuration");
+    fs::write(config_path, content).expect("Failed to write configuration file");
+}
+
 // add repo function
 fn add_repo(repo_path: &str, config_path: &Path) {
     let expanded_path = expand_path(repo_path);
@@ -49,49 +72,36 @@ fn add_repo(repo_path: &str, config_path: &Path) {
         return;
     }
 
-    let mut config_content = std::fs::read_to_string(config_path).unwrap_or_default();
-    if config_content.lines().any(|line| line.trim() == expanded_path.to_str().unwrap_or("")) {
+    let mut config = read_config(config_path);
+    if !config.repositories.insert(expanded_path.to_string_lossy().to_string()) {
         println!("Repository already exists: {}", repo_path);
         return;
     }
 
-    config_content.push_str(&format!("{}\n", expanded_path.display()));
-    if let Err(err) = std::fs::write(config_path, config_content) {
-        eprintln!("Failed to write to config file: {}", err);
-    } else {
-        println!("Added repository: {}", expanded_path.display());
-    }
+    write_config(config_path, &config);
+    println!("Added repository: {}", expanded_path.display());
 }
 
 // remove repo function (by path or name)
 fn remove_repo(repo_identifier: &str, config_path: &Path) {
-    let config_content = std::fs::read_to_string(config_path).unwrap_or_default();
-    let new_content: String = config_content
-        .lines()
-        .filter(|line| {
-            let trimmed = line.trim();
-            trimmed != repo_identifier && !trimmed.contains(repo_identifier)
-        })
-        .map(|line| format!("{}\n", line))
-        .collect();
-    if let Err(err) = std::fs::write(config_path, new_content) {
-        eprintln!("Failed to write to config file: {}", err);
-    } else {
+    let mut config = read_config(config_path);
+    if config.repositories.remove(repo_identifier) {
+        write_config(config_path, &config);
         println!("Removed repository: {}", repo_identifier);
+    } else {
+        eprintln!("Repository not found: {}", repo_identifier);
     }
 }
 
 // list repos function
 fn list_repos(config_path: &Path) {
-    match std::fs::read_to_string(config_path) {
-        Ok(config_content) => {
-            println!("Configured repositories:");
-            for line in config_content.lines() {
-                println!("- {}", line);
-            }
-        }
-        Err(err) => {
-            eprintln!("Failed to read config file: {}", err);
+    let config = read_config(config_path);
+    if config.repositories.is_empty() {
+        println!("No repositories configured.");
+    } else {
+        println!("Configured repositories:");
+        for repo in &config.repositories {
+            println!("- {}", repo);
         }
     }
 }
@@ -131,7 +141,7 @@ fn pull_all(repo_path: &str) {
 // main function
 fn main() {
     let matches = Command::new("git-helper")
-        .version("1.3.2")
+        .version("1.4.0")
         .author("nbrandolino")
         .about("A helper tool for managing multiple git repositories")
         // add repo to config file
@@ -170,7 +180,7 @@ fn main() {
 
     // set config file path
     let config_path = dirs_next::home_dir()
-        .map(|home| home.join(".config/git-helper/git-helper.conf"))
+        .map(|home| home.join(".config/git-helper/git-helper.toml"))
         .unwrap_or_else(|| {
             eprintln!("Unable to find home directory. Please set HOME environment variable correctly.");
             std::process::exit(1);
@@ -193,18 +203,9 @@ fn main() {
     }
     // pull all repos
     else if matches.get_flag("pull-all") {
-        match std::fs::read_to_string(&config_path) {
-            Ok(config_content) => {
-                for line in config_content.lines() {
-                    let repo_path = line.trim();
-                    if !repo_path.is_empty() {
-                        pull_all(repo_path);
-                    }
-                }
-            }
-            Err(err) => {
-                eprintln!("Failed to read config file: {}", err);
-            }
+        let config = read_config(&config_path);
+        for repo in &config.repositories {
+            pull_all(repo);
         }
     }
     // if no arguments are passed, display the help menu

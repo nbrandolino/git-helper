@@ -25,7 +25,7 @@ fn expand_path(input: &str) -> PathBuf {
         std::env::current_dir().expect("Unable to resolve current directory")
     }
     else if input.starts_with("~") {
-        std::env::home_dir()
+        dirs_next::home_dir()
             .map(|home_dir| home_dir.join(&input[1..]))
             .unwrap_or_else(|| {
                 panic!("Unable to determine home directory. Please set HOME environment variable correctly.")

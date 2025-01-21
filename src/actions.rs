@@ -61,6 +61,7 @@ pub fn pull_all(repo_path: &str) {
         .arg("-C")
         .arg(repo_path)
         .arg("pull")
+        .arg("--all")
         .stdout(std::process::Stdio::inherit())
         .stderr(std::process::Stdio::inherit())
         .output();

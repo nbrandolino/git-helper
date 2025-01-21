@@ -12,7 +12,7 @@ git-helper [options]
 
 ### Options:
 - `-h, --help`: Display help information.
-- `-v, --version`: Display version information.
+- `-V, --version`: Display version information.
 - `-a, --add-repo`: Adds a new repository to be managed.
 - `-r, --remove-repo`: Removes a repository from being managed.
 - `-l, --list-repos`: Lists all repositories being managed.

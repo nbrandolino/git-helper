@@ -17,6 +17,7 @@ git-helper [options]
 - `-r, --remove-repo`: Removes a repository from being managed.
 - `-l, --list-repos`: Lists all repositories being managed.
 - `-p, --pull-all`: Pulls all managed repositories.
+- `-f, --fetch-all`: Fetches all managed repositories.
 
 ### Examples
 1. Add repository:
@@ -34,6 +35,10 @@ git-helper [options]
 4. Pull all repositories:
     ```bash
     git-helper -p
+    ```
+5. Fetch all repositories:
+    ```bash
+    git-helper -f
     ```
 
 ## Build and Install

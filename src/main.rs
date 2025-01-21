@@ -32,6 +32,12 @@ fn main() {
             actions::pull_all(repo);
         }
     }
+    else if matches.get_flag("fetch-all") {
+        let config = config::read_config(&config_path);
+        for repo in &config.repositories {
+            actions::fetch_all(repo);
+        }
+    }
     else {
         println!("No action specified. Use --help for usage.");
     }

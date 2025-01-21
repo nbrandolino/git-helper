@@ -35,4 +35,11 @@ pub fn build_cli() -> clap::Command {
                 .help("Pulls all managed repositories")
                 .action(clap::ArgAction::SetTrue),
         )
+        .arg(
+            clap::Arg::new("fetch-all")
+                .long("fetch-all")
+                .short('f')
+                .help("Fetches all managed repositories")
+                .action(clap::ArgAction::SetTrue),
+        )
 }

@@ -26,6 +26,9 @@ fn main() {
     else if matches.get_flag("list-repos") {
         actions::list_repos(&config_path);
     }
+    else if let Some(repo_identifier) = matches.get_one::<String>("show-graph") {
+        actions::show_git_graph(repo_identifier, &config_path);
+    }
     else if matches.get_flag("pull-all") {
         let config = config::read_config(&config_path);
         for repo in &config.repositories {

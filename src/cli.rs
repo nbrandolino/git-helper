@@ -29,6 +29,13 @@ pub fn build_cli() -> clap::Command {
                 .action(clap::ArgAction::SetTrue),
         )
         .arg(
+            clap::Arg::new("show-graph")
+                .long("show-graph")
+                .short('g')
+                .help("Displays the Git commit graph for a specified repository")
+                .value_parser(clap::value_parser!(String)),
+        )
+        .arg(
             clap::Arg::new("pull-all")
                 .long("pull-all")
                 .short('p')

@@ -3,6 +3,12 @@ mod actions;
 mod cli;
 mod config;
 mod utils;
+use actions::add_repo;
+use actions::fetch_all;
+use actions::list_repos;
+use actions::pull_all;
+use actions::remove_repo;
+use actions::show_git_graph;
 
 // main function
 fn main() {
@@ -19,32 +25,32 @@ fn main() {
 
     // add-repo
     if let Some(repo_path) = matches.get_one::<String>("add-repo") {
-        actions::add_repo(repo_path, &config_path);
+        add_repo::main(repo_path, &config_path);
     }
     // remove-repo
     else if let Some(repo_identifier) = matches.get_one::<String>("remove-repo") {
-        actions::remove_repo(repo_identifier, &config_path);
+        remove_repo::main(repo_identifier, &config_path);
     }
     // list-repos
     else if matches.get_flag("list-repos") {
-        actions::list_repos(&config_path);
+        list_repos::main(&config_path);
     }
     // show-graph
     else if let Some(repo_identifier) = matches.get_one::<String>("show-graph") {
-        actions::show_git_graph(repo_identifier, &config_path);
+        show_git_graph::main(repo_identifier, &config_path);
     }
     // pull-all
     else if matches.get_flag("pull-all") {
         let config = config::read_config(&config_path);
         for repo in &config.repositories {
-            actions::pull_all(repo);
+            pull_all::main(repo);
         }
     }
     // fetch-all
     else if matches.get_flag("fetch-all") {
         let config = config::read_config(&config_path);
         for repo in &config.repositories {
-            actions::fetch_all(repo);
+            fetch_all::main(repo);
         }
     }
     else {

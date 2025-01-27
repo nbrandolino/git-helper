@@ -1,0 +1,21 @@
+use crate::config::{read_config, write_config};
+use crate::utils::{expand_path, validate_git_repo};
+use std::path::Path;
+
+// add repo to config file
+pub fn main(repo_path: &str, config_path: &Path) {
+    let expanded_path = expand_path(repo_path);
+    if let Err(err) = validate_git_repo(&expanded_path) {
+        eprintln!("Failed to add repository: {}", err);
+        return;
+    }
+
+    let mut config = read_config(config_path);
+    if !config.repositories.insert(expanded_path.to_string_lossy().to_string()) {
+        println!("Repository already exists: {}", repo_path);
+        return;
+    }
+
+    write_config(config_path, &config);
+    println!("Added repository: {}", expanded_path.display());
+}

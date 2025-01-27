@@ -1,11 +1,26 @@
 [package]
 name = "git-helper"
-version = "1.6.0"
+version = "1.7.0"
 authors = ["nbrandolino nickbrandolino134@gmail.com"]
 edition = "2021"
 
 [profile.release]
+debug = false
+opt-level = "z"
+panic = "abort"
 strip = true
+
+[profile.development]
+codegen-units = 256
+debug-assertions = true
+debug-symbols = true
+incremental = true
+inherits = "dev"
+lto = "off"
+opt-level = 0
+overflow-checks = true
+panic = "unwind"
+split-debuginfo = "..."
 
 [dependencies]
 clap = "4.5"

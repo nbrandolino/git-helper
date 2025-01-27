@@ -4,6 +4,7 @@
 ## Requirements
 - **Rust**: The tool is written in Rust and it is required to compile.
 - **Linux Environment**: Designed to work on Linux-based systems.
+- **Git**: Utilizes the Git package and requires it to run.
 
 ## Usage
 ```bash
@@ -18,6 +19,7 @@ git-helper [options]
 - `-l, --list-repos`: Lists all repositories being managed.
 - `-p, --pull-all`: Pulls all managed repositories.
 - `-f, --fetch-all`: Fetches all managed repositories.
+- `-c, --clone-remote-branches`: Creates local branches for all remote branches of a specified repository.
 
 ### Examples
 1. Add repository:
@@ -39,6 +41,10 @@ git-helper [options]
 5. Fetch all repositories:
     ```bash
     git-helper -f
+    ```
+6. Create local branches for all remote branches:
+    ```bash
+    git-helper -c repo-name
     ```
 
 ## Build and Install

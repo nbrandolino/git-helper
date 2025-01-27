@@ -13,7 +13,7 @@ strip = true
 [profile.development]
 codegen-units = 256
 debug-assertions = true
-debug-symbols = true
+debug = true
 incremental = true
 inherits = "dev"
 lto = "off"

@@ -3,11 +3,11 @@ use crate::utils::validate_git_repo;
 use std::path::Path;
 use std::process::Command;
 
-/// Clones all remote branches as local branches, avoiding duplicates
+/// clones all remote branches as local branches
 pub fn main(repo_identifier: &str, config_path: &Path) {
     let config = read_config(config_path);
 
-    // Find the repository matching the identifier
+    // find repository matching the identifier
     let repo_path = config
         .repositories
         .iter()
@@ -17,7 +17,6 @@ pub fn main(repo_identifier: &str, config_path: &Path) {
         Some(repo_path) => {
             let path = Path::new(repo_path);
 
-            // Validate if it's a git repository
             if let Err(err) = validate_git_repo(path) {
                 eprintln!("Error: {}", err);
                 return;
@@ -25,7 +24,7 @@ pub fn main(repo_identifier: &str, config_path: &Path) {
 
             println!("Cloning remote branches for repository: {}", repo_path);
 
-            // Fetch remote branches
+            // fetch remote branches
             let fetch_output = Command::new("git")
                 .arg("-C")
                 .arg(repo_path)
@@ -38,7 +37,7 @@ pub fn main(repo_identifier: &str, config_path: &Path) {
                 return;
             }
 
-            // Get the list of remote branches
+            // get the list of remote branches
             let branch_output = Command::new("git")
                 .arg("-C")
                 .arg(repo_path)
@@ -51,13 +50,13 @@ pub fn main(repo_identifier: &str, config_path: &Path) {
                     if output.status.success() {
                         let branches = String::from_utf8_lossy(&output.stdout);
                         for branch in branches.lines() {
-                            // Skip symbolic refs like `origin/HEAD -> origin/main`
+                            // skip symbolic refs
                             if branch.contains("->") {
                                 continue;
                             }
                             let branch_name = branch.trim().replace("origin/", "");
 
-                            // Check if the branch already exists locally
+                            // check if the branch already exists locally
                             let local_branch_check = Command::new("git")
                                 .arg("-C")
                                 .arg(repo_path)
@@ -86,7 +85,7 @@ pub fn main(repo_identifier: &str, config_path: &Path) {
                                 }
                             }
 
-                            // Checkout a local branch from the remote branch
+                            // checkout a local branch from the remote branch
                             let checkout_output = Command::new("git")
                                 .arg("-C")
                                 .arg(repo_path)

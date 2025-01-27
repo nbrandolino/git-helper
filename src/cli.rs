@@ -31,6 +31,14 @@ pub fn build_cli() -> clap::Command {
                 .help("Lists all repositories being managed")
                 .action(clap::ArgAction::SetTrue),
         )
+        // detailed status report
+        .arg(
+            clap::Arg::new("status")
+                .long("status")
+                .short('s')
+                .help("Displays a detailed status report for all managed repositories")
+                .action(clap::ArgAction::SetTrue),
+        )
         // show-graph
         .arg(
             clap::Arg::new("show-graph")

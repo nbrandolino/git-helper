@@ -17,6 +17,7 @@ git-helper [options]
 - `-a, --add-repo`: Adds a new repository to be managed.
 - `-r, --remove-repo`: Removes a repository from being managed.
 - `-l, --list-repos`: Lists all repositories being managed.
+- `-s, --status`: Displays a detailed status report for all managed repositories.
 - `-p, --pull-all`: Pulls all managed repositories.
 - `-f, --fetch-all`: Fetches all managed repositories.
 - `-c, --clone-remote-branches`: Creates local branches for all remote branches of a specified repository.
@@ -33,6 +34,10 @@ git-helper [options]
 3. List all repositories:
     ```bash
     git-helper -l
+    ```
+4. Display Status report for all managed repositories:
+    ```bash
+    git-helper -s
     ```
 4. Pull all repositories:
     ```bash

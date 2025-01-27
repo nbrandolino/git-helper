@@ -10,6 +10,7 @@ use actions::list_repos;
 use actions::pull_all;
 use actions::remove_repo;
 use actions::show_git_graph;
+use actions::status_report;
 
 // main function
 fn main() {
@@ -35,6 +36,10 @@ fn main() {
     // list-repos
     else if matches.get_flag("list-repos") {
         list_repos::main(&config_path);
+    }
+    // detailed status report
+    else if matches.get_flag("status") {
+        status_report::main(&config_path);
     }
     // show-graph
     else if let Some(repo_identifier) = matches.get_one::<String>("show-graph") {

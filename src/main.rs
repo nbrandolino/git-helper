@@ -4,6 +4,7 @@ mod cli;
 mod config;
 mod utils;
 use actions::add_repo;
+use actions::clone_remote_branches;
 use actions::fetch_all;
 use actions::list_repos;
 use actions::pull_all;
@@ -52,6 +53,10 @@ fn main() {
         for repo in &config.repositories {
             fetch_all::main(repo);
         }
+    }
+    // clone remote branches
+    else if let Some(repo_identifier) = matches.get_one::<String>("clone-remote-branches") {
+        clone_remote_branches::main(repo_identifier, &config_path);
     }
     else {
         println!("No action specified. Use --help for usage.");

@@ -55,4 +55,12 @@ pub fn build_cli() -> clap::Command {
                 .help("Fetches all managed repositories")
                 .action(clap::ArgAction::SetTrue),
         )
+        // clone remote branches
+        .arg(
+            clap::Arg::new("clone-remote-branches")
+                .long("clone-remote-branches")
+                .short('c')
+                .help("Creates local branches for all remote branches of a specified repository")
+                .value_parser(clap::value_parser!(String)),
+        )
 }

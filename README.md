@@ -54,6 +54,7 @@ git-helper [OPTIONS]
 
 - `-h, --help`: Display help information.
 - `-V, --version`: Display version information.
+- `-C, --config`: Specify location of configuration file.
 - `-a, --add-repo <PATH>`: Adds a new repository to be managed.
 - `-r, --remove-repo <IDENTIFIER>`: Removes a repository from management.
 - `-l, --list-repos`: Lists all managed repositories.
@@ -99,13 +100,20 @@ git-helper [OPTIONS]
    ```bash
    git-helper -c repo-name
    ```
+
 8. Clone all remote branches:
    ```bash
    git-helper -c all
    ```
+
 9. Show the commit graph:
    ```bash
    git-helper -g repo-name
+   ```
+
+9. Specify config file:
+   ```bash
+   git-helper --config /custom/path/git-helper.toml -p
    ```
 
 ---

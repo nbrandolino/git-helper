@@ -18,10 +18,7 @@ pub fn read_config(config_path: &Path) -> Config {
                 Config::default()
             }
         },
-        Err(e) => {
-            eprintln!("Error reading config file: {}", e);
-            Config::default()
-        }
+        Err(_) => Config::default(),
     }
 }
 

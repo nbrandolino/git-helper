@@ -40,7 +40,7 @@
    ```bash
    cargo install --path .
    ```
-   
+
 ---
 
 ## Usage
@@ -95,12 +95,15 @@ git-helper [OPTIONS]
    git-helper -f
    ```
 
-7. Clone remote branches:
+7. Clone remote branch:
    ```bash
    git-helper -c repo-name
    ```
-
-8. Show the commit graph:
+8. Clone all remote branches:
+   ```bash
+   git-helper -c all
+   ```
+9. Show the commit graph:
    ```bash
    git-helper -g repo-name
    ```

@@ -40,6 +40,15 @@ pub fn build_cli() -> clap::Command {
                 .help("Lists all repositories being managed")
                 .action(clap::ArgAction::SetTrue),
         )
+        // detect-repos
+        .arg(
+            clap::Arg::new("detect-repos")
+                .long("detect")
+                .short('d')
+                .help("Scans a directory for Git repositories and adds them to management")
+                .value_parser(clap::value_parser!(String))
+                .default_value("."),
+        )
         // detailed status report
         .arg(
             clap::Arg::new("status")

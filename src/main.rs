@@ -6,6 +6,7 @@ mod utils;
 use std::path::PathBuf;
 use actions::add_repo;
 use actions::clone_remote_branches;
+use actions::detect_repos;
 use actions::fetch_all;
 use actions::list_repos;
 use actions::pull_all;
@@ -43,6 +44,10 @@ fn main() {
     // list-repos
     else if matches.get_flag("list-repos") {
         list_repos::main(&config_path);
+    }
+    // detect-repos
+    else if let Some(scan_path) = matches.get_one::<String>("detect-repos") {
+        detect_repos::main(scan_path, &config_path);
     }
     // detailed status report
     else if matches.get_flag("status") {

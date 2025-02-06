@@ -58,6 +58,7 @@ git-helper [OPTIONS]
 - `-a, --add-repo <PATH>`: Adds a new repository to be managed.
 - `-r, --remove-repo <IDENTIFIER>`: Removes a repository from management.
 - `-l, --list-repos`: Lists all managed repositories.
+- `-d, --detect`: Scans a directory for Git repositories and adds them to management.
 - `-s, --status`: Displays a detailed status report for all managed repositories.
 - `-p, --pull-all`: Pulls the latest changes for all managed repositories.
 - `-f, --fetch-all`: Fetches updates for all managed repositories.
@@ -81,37 +82,42 @@ git-helper [OPTIONS]
    git-helper -l
    ```
 
-4. Display a status report:
+4. Scan directory and add all git repositories:
+   ```bash
+   git-helper -d /projects
+   ```
+
+5. Display a status report:
    ```bash
    git-helper -s
    ```
 
-5. Pull changes for all repositories:
+6. Pull changes for all repositories:
    ```bash
    git-helper -p
    ```
 
-6. Fetch updates for all repositories:
+7. Fetch updates for all repositories:
    ```bash
    git-helper -f
    ```
 
-7. Clone remote branch:
+8. Clone remote branch:
    ```bash
    git-helper -c repo-name
    ```
 
-8. Clone all remote branches:
+9. Clone all remote branches:
    ```bash
    git-helper -c all
    ```
 
-9. Show the commit graph:
+10. Show the commit graph:
    ```bash
    git-helper -g repo-name
    ```
 
-9. Specify config file:
+11. Specify config file:
    ```bash
    git-helper --config /custom/path/git-helper.toml -p
    ```

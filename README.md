@@ -113,14 +113,14 @@ git-helper [OPTIONS]
    ```
 
 10. Show the commit graph:
-   ```bash
-   git-helper -g repo-name
-   ```
+    ```bash
+    git-helper -g repo-name
+    ```
 
 11. Specify config file:
-   ```bash
-   git-helper --config /custom/path/git-helper.toml -p
-   ```
+    ```bash
+    git-helper --config /custom/path/git-helper.toml -p
+    ```
 
 ---
 

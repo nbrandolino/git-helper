@@ -1,7 +1,7 @@
 use crate::config::{read_config, write_config};
-use crate::utils::{expand_path, validate_git_repo};
+use crate::utils::expand_path;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 // scan dir for repos
 pub fn main(scan_path: &str, config_path: &Path) {

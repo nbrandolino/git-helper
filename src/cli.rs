@@ -1,4 +1,4 @@
-use clap::{Arg, Command};
+use clap::Arg;
 use crate::constants::NAME;
 use crate::constants;
 

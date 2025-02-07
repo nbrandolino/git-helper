@@ -102,25 +102,15 @@ git-helper [OPTIONS]
    git-helper -f
    ```
 
-8. Clone remote branch:
+7. Clone remote branches:
    ```bash
    git-helper -c repo-name
    ```
 
-9. Clone all remote branches:
+8. Show the commit graph:
    ```bash
-   git-helper -c all
+   git-helper -g repo-name
    ```
-
-10. Show the commit graph:
-    ```bash
-    git-helper -g repo-name
-    ```
-
-11. Specify config file:
-    ```bash
-    git-helper --config /custom/path/git-helper.toml -p
-    ```
 
 ---
 

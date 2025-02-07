@@ -7,6 +7,15 @@ pub fn build_cli() -> clap::Command {
         .version(constants::VERSION)
         .author(constants::AUTHOR)
         .about("A helper tool for managing multiple git repositories")
+        // specify config file
+        .arg(
+            clap::Arg::new("config")
+                .long("config")
+                .short('C')
+                .help("Specify an alternative configuration file")
+                .value_name("PATH")
+                .value_parser(clap::value_parser!(String)),
+        )
         // add-repo
         .arg(
             clap::Arg::new("add-repo")

@@ -54,6 +54,7 @@ git-helper [OPTIONS]
 
 - `-h, --help`: Display help information.
 - `-V, --version`: Display version information.
+- `-C, --config <PATH>`: Specify an alternative configuration file.
 - `-a, --add-repo <PATH>`: Adds a new repository to be managed.
 - `-r, --remove-repo <IDENTIFIER>`: Removes a repository from management.
 - `-l, --list-repos`: Lists all managed repositories.

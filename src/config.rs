@@ -14,12 +14,12 @@ pub fn read_config(config_path: &Path) -> Config {
         Ok(content) => match toml::from_str(&content) {
             Ok(config) => config,
             Err(e) => {
-                eprintln!("Error parsing config: {}", e);
+                eprintln!("Error parsing config file '{}': {}", config_path.display(), e);
                 Config::default()
             }
         },
         Err(e) => {
-            eprintln!("Error reading config file: {}", e);
+            eprintln!("Could not read config file '{}': {}", config_path.display(), e);
             Config::default()
         }
     }

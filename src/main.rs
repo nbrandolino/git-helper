@@ -11,17 +11,24 @@ use actions::pull_all;
 use actions::remove_repo;
 use actions::show_git_graph;
 use actions::status_report;
+use std::path::PathBuf;
 
 // main function
 fn main() {
     let matches = cli::build_cli().get_matches();
 
-    let config_path = dirs_next::home_dir()
-        .map(|home| home.join(".config/git-helper/git-helper.toml"))
-        .unwrap_or_else(|| {
-            eprintln!("Unable to find home directory. Please set HOME environment variable correctly.");
-            std::process::exit(1);
-        });
+    // Determine config file path
+    let config_path = if let Some(config_file) = matches.get_one::<String>("config") {
+        PathBuf::from(config_file)
+    }
+    else {
+        dirs_next::home_dir()
+            .map(|home| home.join(".config/git-helper/git-helper.toml"))
+            .unwrap_or_else(|| {
+                eprintln!("Unable to find home directory. Please set HOME environment variable correctly.");
+                std::process::exit(1);
+            })
+    };
 
     utils::ensure_config_dir_exists(&config_path);
 

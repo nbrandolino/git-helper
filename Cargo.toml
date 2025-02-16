@@ -1,6 +1,6 @@
 [package]
 name = "git-helper"
-version = "2.3.1"
+version = "2.3.2"
 authors = ["nbrandolino nickbrandolino134@gmail.com"]
 edition = "2021"
 
@@ -24,7 +24,7 @@ split-debuginfo = "..."
 
 [dependencies]
 clap = "4.5"
-colored = "2.0"
+colored = "3.0.0"
 dirs-next = "2.0"
 serde = { version = "1.0", features = ["derive"] }
-toml = "0.7"
+toml = "0.8.20"

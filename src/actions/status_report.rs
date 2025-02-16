@@ -1,5 +1,6 @@
 use crate::config::read_config;
 use crate::utils::validate_git_repo;
+use colored::*;
 use std::path::Path;
 use std::process::Command;
 
@@ -12,7 +13,7 @@ pub fn main(config_path: &Path) {
         return;
     }
 
-    println!("Detailed Status Report:\n");
+    println!("{}", "Detailed Status Report:".bold().blue());
 
     for repo_path in &config.repositories {
         let path = Path::new(repo_path);
@@ -22,7 +23,7 @@ pub fn main(config_path: &Path) {
             continue;
         }
 
-        println!("Repository: {}", repo_path);
+        println!("\n{}", format!("📂 Repository: {}", repo_path).cyan());
 
         // get current branch
         let branch_output = Command::new("git")
@@ -36,7 +37,7 @@ pub fn main(config_path: &Path) {
         match branch_output {
             Ok(output) if output.status.success() => {
                 let branch = String::from_utf8_lossy(&output.stdout).trim().to_string();
-                println!("  Current Branch: {}", branch);
+                println!("  {} {}", "🔀 Branch:".bold(), branch.green());
             }
             Ok(_) => eprintln!("  Failed to determine current branch."),
             Err(err) => eprintln!("  Error retrieving branch info: {:?}", err),
@@ -54,7 +55,7 @@ pub fn main(config_path: &Path) {
         match commit_output {
             Ok(output) if output.status.success() => {
                 let commit = String::from_utf8_lossy(&output.stdout).trim().to_string();
-                println!("  Latest Commit: {}", commit);
+                println!("  {} {}", "📝 Latest Commit:".bold(), commit.yellow());
             }
             Ok(_) => eprintln!("  Failed to retrieve latest commit."),
             Err(err) => eprintln!("  Error retrieving latest commit: {:?}", err),
@@ -72,9 +73,9 @@ pub fn main(config_path: &Path) {
             Ok(output) if output.status.success() => {
                 let status = String::from_utf8_lossy(&output.stdout).trim().to_string();
                 if status.is_empty() {
-                    println!("  Pending Changes: None");
+                    println!("  {} {}", "✅ Clean State:".bold(), "No pending changes".green());
                 } else {
-                    println!("  Pending Changes:\n{}", status);
+                    println!("  {} \n{}", "⚠ Pending Changes:".bold().red(), status);
                 }
             }
             Ok(_) => eprintln!("  Failed to retrieve status."),

@@ -1,7 +1,8 @@
+use colored::Colorize;
 use std::fs;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::path::{Path};
+use std::path::Path;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Config {
@@ -14,12 +15,12 @@ pub fn read_config(config_path: &Path) -> Config {
         Ok(content) => match toml::from_str(&content) {
             Ok(config) => config,
             Err(e) => {
-                eprintln!("Error parsing config file '{}': {}", config_path.display(), e);
+                eprintln!("{}", format!("❌ Error parsing config file '{}': {}", config_path.display(), e).red());
                 Config::default()
             }
         },
         Err(e) => {
-            eprintln!("Could not read config file '{}': {}", config_path.display(), e);
+            eprintln!("{}", format!("❌ Could not read config file '{}': {}", config_path.display(), e).red());
             Config::default()
         }
     }
@@ -30,5 +31,6 @@ pub fn write_config(config_path: &Path, config: &Config) {
     let content = toml::to_string(config).expect("Failed to serialize configuration");
     if let Err(err) = fs::write(config_path, content) {
         eprintln!("Failed to write configuration: {}", err);
+        eprintln!("{}", format!("❌ Failed to write configuration: {}", err).red());
     }
 }

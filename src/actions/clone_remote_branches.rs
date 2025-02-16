@@ -1,5 +1,6 @@
 use crate::config::read_config;
 use crate::utils::validate_git_repo;
+use colored::Colorize;
 use std::path::Path;
 use std::process::Command;
 
@@ -84,20 +85,21 @@ fn clone_branches(repo_path: &str) {
                             if local_output.status.success() {
                                 let local_branches = String::from_utf8_lossy(&local_output.stdout);
                                 if local_branches.contains(&branch_name) {
-                                    println!("Branch '{}' already exists locally, skipping.", branch_name);
+                                    println!(
+                                        "{}", format!("⚠ Branch '{}' already exists locally, skipping.",
+                                        branch_name).yellow());
                                     continue;
                                 }
                             }
                             else {
                                 eprintln!(
-                                    "Failed to check local branches: {:?}",
-                                    String::from_utf8_lossy(&local_output.stderr)
-                                );
+                                    "{}", format!("❌ Failed to check local branches: {:?}",
+                                    String::from_utf8_lossy(&local_output.stderr)).red());
                                 continue;
                             }
                         }
                         Err(err) => {
-                            eprintln!("Error checking local branches: {:?}", err);
+                            eprintln!("{}", format!("❌ Error checking local branches: {:?}", err).red());
                             continue;
                         }
                     }
@@ -114,33 +116,28 @@ fn clone_branches(repo_path: &str) {
 
                     if let Ok(output) = checkout_output {
                         if output.status.success() {
-                            println!("Created local branch: {}", branch_name);
+                            println!("{}", format!("✔ Created local branch: {}", branch_name).green());
                         }
                         else {
                             eprintln!(
-                                "Failed to create local branch: {}\nError: {}",
+                                "{}", format!("❌ Failed to create local branch: {}\nError: {}",
                                 branch_name,
-                                String::from_utf8_lossy(&output.stderr)
-                            );
+                                String::from_utf8_lossy(&output.stderr)).red());
                         }
                     }
                     else {
                         eprintln!(
-                            "Error running git checkout for branch '{}': {:?}",
-                            branch_name, checkout_output
-                        );
+                            "{}", format!("❌ Error running git checkout for branch '{}': {:?}",
+                            branch_name, checkout_output).red());
                     }
                 }
             }
             else {
-                eprintln!(
-                    "Failed to list remote branches for repository: {}",
-                    repo_path
-                );
+                eprintln!("{}", format!("❌ Failed to list remote branches for repository: {}", repo_path).red());
             }
         }
         Err(err) => {
-            eprintln!("Error listing remote branches: {:?}", err);
+            eprintln!("{}", format!("❌ Error listing remote branches: {:?}", err).red());
         }
     }
 }

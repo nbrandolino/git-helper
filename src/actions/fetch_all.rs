@@ -1,4 +1,5 @@
-use crate::utils::{validate_git_repo};
+use crate::utils::validate_git_repo;
+use colored::Colorize;
 use std::path::Path;
 
 // fetch all repos in config file
@@ -6,7 +7,7 @@ pub fn main(repo_path: &str) {
     let path = Path::new(repo_path);
 
     if let Err(err) = validate_git_repo(path) {
-        eprintln!("Cannot fetch repository: {}", err);
+        eprintln!("{}", format!("❌ Cannot fetch repository: {}", err).red());
         return;
     }
 
@@ -23,13 +24,13 @@ pub fn main(repo_path: &str) {
 
     match output {
         Ok(status) if status.status.success() => {
-            println!("Successfully fetched: {}", repo_path);
+            println!("{}", format!("✔ Successfully fetched: {}", repo_path).green());
         }
         Ok(_) => {
-            eprintln!("Failed to fetch repository at: {}", repo_path);
+            eprintln!("{}", format!("❌ Failed to fetch repository at: {}", repo_path).red());
         }
         Err(err) => {
-            eprintln!("Error fetching repository at {}: {:?}", repo_path, err);
+            eprintln!("{}", format!("❌ Error fetching repository at {}: {:?}", repo_path, err).red());
         }
     }
 }

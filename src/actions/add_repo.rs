@@ -7,7 +7,7 @@ use std::path::Path;
 pub fn main(repo_path: &str, config_path: &Path) {
     let expanded_path = expand_path(repo_path);
     if let Err(err) = validate_git_repo(&expanded_path) {
-        eprintln!("Failed to add repository: {}", err);
+        eprintln!("{}", format!("❌ Failed to add repository: {}", err).red());
         return;
     }
 
@@ -18,5 +18,5 @@ pub fn main(repo_path: &str, config_path: &Path) {
     }
 
     write_config(config_path, &config);
-    println!("Added repository: {}", expanded_path.display());
+    println!("{}", format!("✔ Added repository: {}", expanded_path.display()).green());
 }

@@ -7,7 +7,7 @@ pub fn main(repo_path: &str) {
     let path = Path::new(repo_path);
 
     if let Err(err) = validate_git_repo(path) {
-        eprintln!("Cannot pull repository: {}", err);
+        eprintln!("{}", format!("❌ Cannot pull repository: {}", err).red());
         return;
     }
 
@@ -30,7 +30,7 @@ pub fn main(repo_path: &str) {
             eprintln!("{}", format!("❌ Failed to pull repository at: {}", repo_path).red());
         }
         Err(err) => {
-            eprintln!("Error pulling repository at {}: {:?}", repo_path, err);
+            eprintln!("{}", format!("❌ Error pulling repository at {}: {:?}", repo_path, err).red());
         }
     }
 }

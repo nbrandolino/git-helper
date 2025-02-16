@@ -1,4 +1,4 @@
-use crate::utils::{validate_git_repo};
+use crate::utils::validate_git_repo;
 use colored::Colorize;
 use std::path::Path;
 

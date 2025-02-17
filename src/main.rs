@@ -12,6 +12,7 @@ use actions::pull_all;
 use actions::remove_repo;
 use actions::show_git_graph;
 use actions::status_report;
+use colored::Colorize;
 use std::path::PathBuf;
 
 // main function
@@ -26,7 +27,7 @@ fn main() {
         dirs_next::home_dir()
             .map(|home| home.join(".config/git-helper/git-helper.toml"))
             .unwrap_or_else(|| {
-                eprintln!("Unable to find home directory. Please set HOME environment variable correctly.");
+                eprintln!("{}", format!("❌ Unable to find home directory. Please set HOME environment variable correctly.").red());
                 std::process::exit(1);
             })
     };

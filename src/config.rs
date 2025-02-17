@@ -30,7 +30,6 @@ pub fn read_config(config_path: &Path) -> Config {
 pub fn write_config(config_path: &Path, config: &Config) {
     let content = toml::to_string(config).expect("Failed to serialize configuration");
     if let Err(err) = fs::write(config_path, content) {
-        eprintln!("Failed to write configuration: {}", err);
         eprintln!("{}", format!("❌ Failed to write configuration: {}", err).red());
     }
 }

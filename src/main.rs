@@ -1,19 +1,9 @@
-pub mod constants;
-mod actions;
-mod cli;
-mod config;
-mod utils;
-use actions::add_repo;
-use actions::clone_remote_branches;
-use actions::detect_repos;
-use actions::fetch_all;
-use actions::list_repos;
-use actions::pull_all;
-use actions::remove_repo;
-use actions::show_git_graph;
-use actions::status_report;
-use colored::Colorize;
+use git_helper::cli;
+use git_helper::config;
+use git_helper::actions::*;
+use git_helper::utils;
 use std::path::PathBuf;
+use colored::Colorize;
 
 // main function
 fn main() {

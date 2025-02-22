@@ -1,2 +1,3 @@
+Cargo.lock
 target/
 tests/test_git_helper_config.toml

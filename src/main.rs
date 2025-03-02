@@ -36,17 +36,9 @@ fn main() {
     else if matches.get_flag("list-repos") {
         list_repos::main(&config_path);
     }
-    // detect repositories
+    // detect
     else if let Some(directory) = matches.get_one::<String>("detect-repos") {
         detect_repos::main(directory, &config_path);
-    }
-    // detailed status report
-    else if matches.get_flag("status") {
-        status_report::main(&config_path);
-    }
-    // show-graph
-    else if let Some(repo_identifier) = matches.get_one::<String>("show-graph") {
-        show_git_graph::main(repo_identifier, &config_path);
     }
     // pull-all
     else if matches.get_flag("pull-all") {

@@ -40,28 +40,12 @@ pub fn build_cli() -> clap::Command {
                 .help("Lists all repositories being managed")
                 .action(clap::ArgAction::SetTrue),
         )
-        // detect repositories in a given directory
+        // detect repos
         .arg(
             clap::Arg::new("detect-repos")
                 .long("detect-repos")
                 .short('d')
                 .help("Detects Git repositories in the specified directory and adds them to the configuration")
-                .value_parser(clap::value_parser!(String)),
-        )
-        // detailed status report
-        .arg(
-            clap::Arg::new("status")
-                .long("status")
-                .short('s')
-                .help("Displays a detailed status report for all managed repositories")
-                .action(clap::ArgAction::SetTrue),
-        )
-        // show-graph
-        .arg(
-            clap::Arg::new("show-graph")
-                .long("show-graph")
-                .short('g')
-                .help("Displays the Git commit graph for a specified repository")
                 .value_parser(clap::value_parser!(String)),
         )
         // pull-all

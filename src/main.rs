@@ -47,6 +47,13 @@ fn main() {
             pull_all::main(repo);
         }
     }
+    // push-all
+    else if matches.get_flag("push-all") {
+        let config = config::read_config(&config_path);
+        for repo in &config.repositories {
+            push_all::main(repo);
+        }
+    }
     // fetch-all
     else if matches.get_flag("fetch-all") {
         let config = config::read_config(&config_path);

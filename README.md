@@ -35,6 +35,7 @@ git-helper [OPTIONS]
 - `-l, --list-repos`: Lists all managed repositories.
 - `-d, --detect-repos`: Detects Git repositories in the specified directory and adds them to the configuration.
 - `-p, --pull-all`: Pulls the latest changes for all managed repositories.
+- `-P, --push-all`: Pushes the latest changes for all managed repositories to their remotes.
 - `-f, --fetch-all`: Fetches updates for all managed repositories.
 - `-c, --clone-remote-branches <IDENTIFIER>`: Creates local branches for all remote branches of a specific repository.
 
@@ -63,11 +64,15 @@ git-helper [OPTIONS]
    ```bash
    git-helper -p
    ```
-7. Fetch updates for all repositories:
+7. Push changes for all repositories:
+   ```bash
+   git-helper -P
+   ```
+8. Fetch updates for all repositories:
    ```bash
    git-helper -f
    ```
-8. Clone remote branches:
+9. Clone remote branches:
    ```bash
    git-helper -c repo-name
    ```

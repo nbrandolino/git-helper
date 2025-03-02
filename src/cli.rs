@@ -56,6 +56,14 @@ pub fn build_cli() -> clap::Command {
                 .help("Pulls all managed repositories")
                 .action(clap::ArgAction::SetTrue),
         )
+        // push-all
+        .arg(
+            clap::Arg::new("push-all")
+                .long("push-all")
+                .short('P')
+                .help("Pushes all managed repositories to their remotes")
+                .action(clap::ArgAction::SetTrue),
+        )
         // fetch all
         .arg(
             clap::Arg::new("fetch-all")

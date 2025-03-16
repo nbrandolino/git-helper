@@ -1,6 +1,6 @@
 [package]
 name = "git-helper"
-version = "2.5.1"
+version = "2.5.2"
 authors = ["nbrandolino nickbrandolino134@gmail.com"]
 edition = "2021"
 
@@ -20,7 +20,6 @@ lto = "off"
 opt-level = 0
 overflow-checks = true
 panic = "unwind"
-split-debuginfo = "..."
 
 [dependencies]
 clap = "4.5"

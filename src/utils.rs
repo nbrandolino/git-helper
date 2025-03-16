@@ -1,5 +1,18 @@
 use std::path::{Path, PathBuf};
+use std::process;
 use std::fs;
+
+// verify if program is being run on macos or linux
+pub fn check_os() {
+    let target_os = std::env::consts::OS;
+    if target_os == "macos" || target_os == "linux" {
+        // do nothing
+    }
+    else {
+        eprintln!("Error: Unsupported operating system: {}", target_os);
+        process::exit(1);
+    }
+}
 
 // ensure config dir exists
 pub fn ensure_config_dir_exists(config_path: &Path) {

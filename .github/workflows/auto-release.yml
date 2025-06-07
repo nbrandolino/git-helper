@@ -1,0 +1,35 @@
+name: Auto Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Extract version from Cargo.toml
+      id: get_version
+      run: |
+        version=$(grep '^version' Cargo.toml | head -n 1 | cut -d '"' -f2)
+        echo "RELEASE_TAG=v$version" >> $GITHUB_ENV
+
+    - name: Create Git tag
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git tag ${{ env.RELEASE_TAG }}
+        git push origin ${{ env.RELEASE_TAG }}
+
+    - name: Create GitHub release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        name: "${{ env.RELEASE_TAG }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

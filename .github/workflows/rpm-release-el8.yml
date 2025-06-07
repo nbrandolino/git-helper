@@ -1,0 +1,50 @@
+name: Build and Release RPM for EL8
+
+on:
+  workflow_run:
+    workflows: ["Auto Release"]
+    types:
+      - completed
+
+jobs:
+  build-rpm-el8:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout tagged commit
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get latest tag
+      id: get_tag
+      run: |
+        TAG=$(git describe --tags --abbrev=0)
+        echo "TAG=$TAG" >> $GITHUB_ENV
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Install cargo-rpm
+      run: cargo install cargo-rpm
+
+    - name: Build RPM for EL8
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace rockylinux:8 /bin/bash -c "
+          dnf -y install epel-release &&
+          dnf -y install rpm-build gcc make rust cargo git &&
+          cargo install cargo-rpm &&
+          cargo rpm build
+        "
+
+    - name: Upload RPM to GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.TAG }}
+        files: target/release/rpmbuild/RPMS/x86_64/*.rpm
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

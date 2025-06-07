@@ -6,6 +6,15 @@ description = "A command-line utility designed to simplify the management of mul
 license = "GPL"
 edition = "2021"
 
+[package.metadata.rpm]
+package = "git-helper"
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+git-helper = { path = "/usr/bin/git-helper" }
+
 [profile.release]
 debug = false
 opt-level = "z"

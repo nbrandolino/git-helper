@@ -6,7 +6,7 @@ Name: git-helper
 Summary: A command-line utility designed to simplify the management of multiple Git repositories.
 Version: @@VERSION@@
 Release: @@RELEASE@@%{?dist}
-License: GPL
+License: GPLv3+
 Group: Applications/System
 Source0: %{name}-%{version}.tar.gz
 

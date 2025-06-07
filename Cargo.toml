@@ -3,7 +3,7 @@ name = "git-helper"
 version = "2.5.2"
 authors = ["nbrandolino nickbrandolino134@gmail.com"]
 description = "A command-line utility designed to simplify the management of multiple Git repositories."
-license = "GPL"
+license = "GPL-3.0-or-later"
 edition = "2021"
 
 [package.metadata.rpm]

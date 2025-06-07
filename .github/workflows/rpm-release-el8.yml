@@ -47,4 +47,3 @@ jobs:
         files: target/release/rpmbuild/RPMS/x86_64/*.rpm
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

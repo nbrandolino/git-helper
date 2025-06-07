@@ -2,6 +2,8 @@
 name = "git-helper"
 version = "2.5.2"
 authors = ["nbrandolino nickbrandolino134@gmail.com"]
+description = "A command-line utility designed to simplify the management of multiple Git repositories."
+license = "GPL"
 edition = "2021"
 
 [profile.release]

@@ -15,6 +15,14 @@ buildflags = ["--release"]
 [package.metadata.rpm.targets]
 git-helper = { path = "/usr/bin/git-helper" }
 
+[package.metadata.deb]
+maintainer = "nbrandolino nickbrandolino134@gmail.com"
+section = "utils"
+priority = "optional"
+assets = [
+    ["target/release/git-helper", "usr/bin/", "755"]
+]
+
 [profile.release]
 debug = false
 opt-level = "z"

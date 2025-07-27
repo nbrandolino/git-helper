@@ -1,0 +1,51 @@
+name: Build and Release DEB for Debian 12
+
+on:
+  workflow_run:
+    workflows: ["Auto Release"]
+    types:
+      - completed
+
+jobs:
+  build-deb-debian12:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout tagged commit
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get latest tag
+      id: get_tag
+      run: |
+        TAG=$(git describe --tags --abbrev=0)
+        echo "TAG=$TAG" >> $GITHUB_ENV
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Install cargo-deb
+      run: cargo install cargo-deb
+
+    - name: Build DEB for Debian 12
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace debian:12 /bin/bash -c "
+          apt-get update &&
+          apt-get install -y build-essential curl git pkg-config libssl-dev &&
+          curl https://sh.rustup.rs -sSf | sh -s -- -y &&
+          . /root/.cargo/env &&
+          cargo install cargo-deb &&
+          cargo deb
+        "
+
+    - name: Upload DEB to GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.TAG }}
+        files: target/debian/*.deb
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

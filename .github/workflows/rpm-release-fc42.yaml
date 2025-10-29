@@ -34,7 +34,6 @@ jobs:
     - name: Build RPM for FC42
       run: |
         docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace fedora:42 /bin/bash -c "
-          dnf -y install epel-release &&
           dnf -y install rpm-build gcc make rust cargo git &&
           cargo install cargo-rpm &&
           cargo rpm build

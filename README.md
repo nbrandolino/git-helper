@@ -7,6 +7,7 @@
 - **Git**: Must have Git installed and accessible.
 
 ## Installation
+### Install From Source
 1. Clone the repository:
    ```bash
    git clone https://github.com/nbrandolino/git-helper.git
@@ -19,6 +20,13 @@
    ```bash
    cargo install --path .
    ```
+### Install From Package
+Download the latest release for your system.
+Supported Versions:
+- Debian 12
+- Enterprise Linux 8
+- Enterprise Linux 9
+- Fedora 42
 
 ## Usage
 Run the tool using the following command:

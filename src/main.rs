@@ -55,13 +55,6 @@ fn main() {
             push_all::main(repo);
         }
     }
-    // fetch-all
-    else if matches.get_flag("fetch-all") {
-        let config = config::read_config(&config_path);
-        for repo in &config.repositories {
-            fetch_all::main(repo);
-        }
-    }
     // clone remote branches
     else if let Some(repo_identifier) = matches.get_one::<String>("clone-remote-branches") {
         clone_remote_branches::main(repo_identifier, &config_path);

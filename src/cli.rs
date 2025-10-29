@@ -64,14 +64,6 @@ pub fn build_cli() -> clap::Command {
                 .help("Pushes all managed repositories to their remotes")
                 .action(clap::ArgAction::SetTrue),
         )
-        // fetch all
-        .arg(
-            clap::Arg::new("fetch-all")
-                .long("fetch-all")
-                .short('f')
-                .help("Fetches all managed repositories")
-                .action(clap::ArgAction::SetTrue),
-        )
         // clone remote branches
         .arg(
             clap::Arg::new("clone-remote-branches")

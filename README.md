@@ -27,6 +27,7 @@ Supported Versions:
 - Enterprise Linux 8
 - Enterprise Linux 9
 - Fedora 42
+- Fedora 43
 
 ## Usage
 Run the tool using the following command:

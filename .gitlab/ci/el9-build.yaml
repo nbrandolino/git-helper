@@ -1,0 +1,19 @@
+el9-build:
+  extends: .rust_rpm_template
+  image: quay.lab.vanth.io/nbrandolino/rockylinux:9
+  stage: package
+  tags:
+    - lab
+
+  before_script:
+    - dnf install epel-release -y
+    - dnf upgrade -y
+    - dnf install
+        gcc gcc-c++
+        rpm-build rpmdevtools
+        openssl-devel pkgconfig
+        git tar gzip -y
+
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y
+    - source "$CARGO_HOME/env"
+    - cargo install cargo-rpm

@@ -1,12 +1,11 @@
-use crate::constants::NAME;
 use crate::constants;
 
 // cli arguments
 pub fn build_cli() -> clap::Command {
-    clap::Command::new(NAME)
+    clap::Command::new(constants::NAME)
         .version(constants::VERSION)
         .author(constants::AUTHOR)
-        .about(format!("A helper tool for managing multiple git repositories"))
+        .about("A helper tool for managing multiple git repositories")
         // specify config file
         .arg(
             clap::Arg::new("config")

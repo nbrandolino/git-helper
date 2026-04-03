@@ -6,7 +6,7 @@ use std::path::Path;
 pub fn main(config_path: &Path) {
     let config = read_config(config_path);
     if config.repositories.is_empty() {
-        println!("{}", format!("⚠ No repositories configured.").yellow());
+        println!("{}", "⚠ No repositories configured.".yellow());
     }
     else {
         println!("Configured repositories:");

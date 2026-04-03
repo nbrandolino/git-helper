@@ -66,113 +66,108 @@ fn clone_branches(repo_path: &str) {
 
     match branch_output {
         Ok(output) => {
-            if output.status.success() {
-                let branches = String::from_utf8_lossy(&output.stdout);
-                for branch in branches.lines() {
-                    // skip symbolic refs
-                    if branch.contains("->") {
-                        continue;
+            if !output.status.success() {
+                eprintln!("{}", format!("❌ Failed to list remote branches for repository: {}", repo_path).red());
+                return;
+            }
+
+            // fetch local branches ONCE before the loop
+            let local_branches_output = Command::new("git")
+                .arg("-C")
+                .arg(repo_path)
+                .arg("branch")
+                .output();
+
+            let local_branches = match local_branches_output {
+                Ok(ref local_output) if local_output.status.success() => {
+                    String::from_utf8_lossy(&local_output.stdout).to_string()
+                }
+                Ok(ref local_output) => {
+                    eprintln!("{}", format!("❌ Failed to check local branches: {:?}",
+                        String::from_utf8_lossy(&local_output.stderr)).red());
+                    return;
+                }
+                Err(err) => {
+                    eprintln!("{}", format!("❌ Error checking local branches: {:?}", err).red());
+                    return;
+                }
+            };
+
+            let branches = String::from_utf8_lossy(&output.stdout);
+            for branch in branches.lines() {
+                // skip symbolic refs
+                if branch.contains("->") {
+                    continue;
+                }
+                let branch_name = branch.trim().replace("origin/", "");
+
+                // check against the locally cached branch list
+                if local_branches.contains(&branch_name) {
+                    println!("{}", format!("⚠ Branch '{}' already exists locally, skipping.", branch_name).yellow());
+                    continue;
+                }
+
+                // checkout a local branch from the remote branch
+                let checkout_output = Command::new("git")
+                    .arg("-C")
+                    .arg(repo_path)
+                    .arg("checkout")
+                    .arg("-b")
+                    .arg(&branch_name)
+                    .arg(format!("origin/{}", branch_name))
+                    .output();
+
+                if let Ok(output) = checkout_output {
+                    if output.status.success() {
+                        println!("{}", format!("✔ Created local branch: {}", branch_name).green());
                     }
-                    let branch_name = branch.trim().replace("origin/", "");
-
-                    // check if the branch already exists locally
-                    let local_branch_check = Command::new("git")
-                        .arg("-C")
-                        .arg(repo_path)
-                        .arg("branch")
-                        .output();
-
-                    match local_branch_check {
-                        Ok(local_output) => {
-                            if local_output.status.success() {
-                                let local_branches = String::from_utf8_lossy(&local_output.stdout);
-                                if local_branches.contains(&branch_name) {
-                                    println!(
-                                        "{}", format!("⚠ Branch '{}' already exists locally, skipping.",
-                                        branch_name).yellow());
-                                    continue;
-                                }
-                            }
-                            else {
-                                eprintln!(
-                                    "{}", format!("❌ Failed to check local branches: {:?}",
-                                    String::from_utf8_lossy(&local_output.stderr)).red());
-                                continue;
-                            }
-                        }
-                        Err(err) => {
-                            eprintln!("{}", format!("❌ Error checking local branches: {:?}", err).red());
-                            continue;
-                        }
+                    else {
+                        eprintln!("{}", format!("❌ Failed to create local branch: {}\nError: {}",
+                            branch_name,
+                            String::from_utf8_lossy(&output.stderr)).red());
                     }
+                }
+                else {
+                    eprintln!("{}", format!("❌ Error running git checkout for branch '{}': {:?}",
+                        branch_name, checkout_output).red());
+                }
+            }
 
-                    // checkout a local branch from the remote branch
-                    let checkout_output = Command::new("git")
+            // checkout the default branch after cloning
+            let default_branch_output = Command::new("git")
+                .arg("-C")
+                .arg(repo_path)
+                .arg("symbolic-ref")
+                .arg("refs/remotes/origin/HEAD")
+                .output();
+
+            if let Ok(output) = default_branch_output {
+                if output.status.success() {
+                    let default_branch = String::from_utf8_lossy(&output.stdout)
+                        .trim()
+                        .replace("refs/remotes/origin/", "");
+
+                    let checkout_default_output = Command::new("git")
                         .arg("-C")
                         .arg(repo_path)
                         .arg("checkout")
-                        .arg("-b")
-                        .arg(&branch_name)
-                        .arg(format!("origin/{}", branch_name))
+                        .arg(&default_branch)
                         .output();
 
-                    if let Ok(output) = checkout_output {
-                        if output.status.success() {
-                            println!("{}", format!("✔ Created local branch: {}", branch_name).green());
+                    if let Ok(checkout_output) = checkout_default_output {
+                        if checkout_output.status.success() {
+                            println!("{}", format!("✔ Checked out default branch: {}", default_branch).green());
                         }
                         else {
-                            eprintln!(
-                                "{}", format!("❌ Failed to create local branch: {}
-Error: {}",
-                                branch_name,
-                                String::from_utf8_lossy(&output.stderr)).red());
+                            eprintln!("{}", format!("❌ Failed to checkout default branch: {}\nError: {}",
+                                default_branch,
+                                String::from_utf8_lossy(&checkout_output.stderr)).red());
                         }
                     }
-                    else {
-                        eprintln!(
-                            "{}", format!("❌ Error running git checkout for branch '{}': {:?}",
-                            branch_name, checkout_output).red());
-                    }
                 }
-
-                // checkout the default branch after cloning
-                let default_branch_output = Command::new("git")
-                    .arg("-C")
-                    .arg(repo_path)
-                    .arg("symbolic-ref")
-                    .arg("refs/remotes/origin/HEAD")
-                    .output();
-
-                if let Ok(output) = default_branch_output {
-                    if output.status.success() {
-                        let default_branch = String::from_utf8_lossy(&output.stdout)
-                            .trim()
-                            .replace("refs/remotes/origin/", "");
-
-                        let checkout_default_output = Command::new("git")
-                            .arg("-C")
-                            .arg(repo_path)
-                            .arg("checkout")
-                            .arg(&default_branch)
-                            .output();
-
-                        if let Ok(checkout_output) = checkout_default_output {
-                            if checkout_output.status.success() {
-                                println!("{}", format!("✔ Checked out default branch: {}", default_branch).green());
-                            }
-                            else {
-                                eprintln!("{}", format!("❌ Failed to checkout default branch: {}
-Error: {}", default_branch, String::from_utf8_lossy(&checkout_output.stderr)).red());
-                            }
-                        }
-                    }
-                    else {
-                        eprintln!("{}", "❌ Failed to determine default branch.".red());
-                    }
+                else {
+                    eprintln!("{}", "❌ Failed to determine default branch.".red());
                 }
-            }
-            else {
-                eprintln!("{}", format!("❌ Failed to list remote branches for repository: {}", repo_path).red());
             }
         }
         Err(err) => {

@@ -13,10 +13,10 @@ pub fn main(repo_path: &str) {
 
     println!("Pulling repository at: {}", repo_path);
 
-    let result = std::process::Command::new("git")  // (or Command::new in push_all)
+    let result = std::process::Command::new("git")
         .arg("-C")
         .arg(repo_path)
-        .arg("pull")  // or "push"
+        .arg("pull")
         .arg("--all")
         .status();
 

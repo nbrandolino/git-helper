@@ -3,7 +3,7 @@ use colored::Colorize;
 use std::path::Path;
 use std::process::Command;
 
-/// push all repos in config file
+// push all repos in config file
 pub fn main(repo_path: &str) {
     let path = Path::new(repo_path);
 

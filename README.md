@@ -23,7 +23,6 @@
 ### Install From Package
 Download the latest release for your system.
 Supported Versions:
-- Debian 12
 - Enterprise Linux 8
 - Enterprise Linux 9
 - Fedora 42
@@ -43,8 +42,8 @@ git-helper [OPTIONS]
 - `-r, --remove-repo <IDENTIFIER>`: Removes a repository from management.
 - `-l, --list-repos`: Lists all managed repositories.
 - `-d, --detect-repos`: Detects Git repositories in the specified directory and adds them to the configuration.
-- `-p, --pull-all`: Pulls the latest changes for all managed repositories.
-- `-P, --push-all`: Pushes the latest changes for all managed repositories to their remotes.
+- `-p, --pull`: Pulls the latest changes for all managed repositories.
+- `-P, --push`: Pushes the latest changes for all managed repositories to their remotes.
 - `-c, --clone-remote-branches <IDENTIFIER>`: Creates local branches for all remote branches of a specific repository.
 
 ### Examples

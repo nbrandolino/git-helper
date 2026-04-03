@@ -50,16 +50,16 @@ pub fn build_cli() -> clap::Command {
         )
         // pull-all
         .arg(
-            clap::Arg::new("pull-all")
-                .long("pull-all")
+            clap::Arg::new("pull")
+                .long("pull")
                 .short('p')
                 .help("Pulls all managed repositories")
                 .action(clap::ArgAction::SetTrue),
         )
         // push-all
         .arg(
-            clap::Arg::new("push-all")
-                .long("push-all")
+            clap::Arg::new("push")
+                .long("push")
                 .short('P')
                 .help("Pushes all managed repositories to their remotes")
                 .action(clap::ArgAction::SetTrue),

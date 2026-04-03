@@ -1,0 +1,20 @@
+.rust_rpm_template:
+  variables:
+    CARGO_HOME: "$CI_PROJECT_DIR/.cargo"
+    RUSTUP_HOME: "$CI_PROJECT_DIR/.rustup"
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  cache:
+    paths:
+      - .cargo/registry/
+      - .cargo/git/
+
+  script:
+    - cargo build --release
+    - cargo generate-rpm --set-metadata "release=\"1.$(. /etc/os-release; case $ID in fedora) echo fc${VERSION_ID};; rhel|centos|almalinux|rocky) echo el${VERSION_ID%%.*};; *) echo 1;; esac)\""
+
+  artifacts:
+    paths:
+      - target/generate-rpm

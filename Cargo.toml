@@ -6,21 +6,9 @@ description = "A command-line utility designed to simplify the management of mul
 license = "GPL-3.0-or-later"
 edition = "2021"
 
-[package.metadata.rpm]
-package = "git-helper"
-
-[package.metadata.rpm.cargo]
-buildflags = ["--release"]
-
-[package.metadata.rpm.targets]
-git-helper = { path = "/usr/bin/git-helper" }
-
-[package.metadata.deb]
-maintainer = "nbrandolino nickbrandolino134@gmail.com"
-section = "utils"
-priority = "optional"
+[package.metadata.generate-rpm]
 assets = [
-    ["target/release/git-helper", "usr/bin/", "755"]
+    { source = "target/release/git-helper", dest = "/usr/bin/git-helper", mode = "755" }
 ]
 
 [profile.release]

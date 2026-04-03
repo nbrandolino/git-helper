@@ -41,14 +41,14 @@ fn main() {
         detect_repos::main(directory, &config_path);
     }
     // pull-all
-    else if matches.get_flag("pull-all") {
+    else if matches.get_flag("pull") {
         let config = config::read_config(&config_path);
         for repo in &config.repositories {
             pull_all::main(repo);
         }
     }
     // push-all
-    else if matches.get_flag("push-all") {
+    else if matches.get_flag("push") {
         let config = config::read_config(&config_path);
         for repo in &config.repositories {
             push_all::main(repo);

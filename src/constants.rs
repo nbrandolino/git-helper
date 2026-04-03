@@ -1,4 +1,4 @@
 // set constants
-pub const NAME: &str = "git-helper";
-pub const VERSION: &str = "2.7.0";
-pub const AUTHOR: &str = "nbrandolino";
+pub const NAME: &str = env!("CARGO_PKG_NAME");
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+pub const AUTHOR: &str = env!("CARGO_PKG_AUTHORS");

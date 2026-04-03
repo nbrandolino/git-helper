@@ -5,7 +5,13 @@ use std::path::Path;
 
 // add repo to config file
 pub fn main(repo_path: &str, config_path: &Path) {
-    let expanded_path = expand_path(repo_path);
+    let expanded_path = match expand_path(repo_path) {
+        Ok(p) => p,
+        Err(e) => {
+            eprintln!("{}", format!("❌ {}", e).red());
+            return;
+        }
+    };
     if let Err(err) = validate_git_repo(&expanded_path) {
         eprintln!("{}", format!("❌ Failed to add repository: {}", err).red());
         return;

@@ -17,7 +17,12 @@ pub fn main(repo_identifier: &str, config_path: &Path) {
         let repo_path = config
             .repositories
             .iter()
-            .find(|repo| repo.contains(repo_identifier));
+            .find(|repo| {
+                Path::new(repo)
+                    .file_name()
+                    .map(|name| name.to_string_lossy() == repo_identifier)
+                    .unwrap_or(false)
+            });
 
         if let Some(repo_path) = repo_path {
             clone_branches(repo_path);
@@ -32,7 +37,6 @@ fn clone_branches(repo_path: &str) {
     let path = Path::new(repo_path);
 
     if let Err(err) = validate_git_repo(path) {
-        eprintln!("Error: {}", err);
         eprintln!("{}", format!("❌ Error: {}", err).red());
         return;
     }

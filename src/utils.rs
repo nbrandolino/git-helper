@@ -1,3 +1,4 @@
+use colored::Colorize;
 use std::path::{Path, PathBuf};
 use std::fs;
 
@@ -5,23 +6,25 @@ use std::fs;
 pub fn ensure_config_dir_exists(config_path: &Path) {
     if let Some(parent_dir) = config_path.parent() {
         if !parent_dir.exists() {
-            fs::create_dir_all(parent_dir).expect("Failed to create configuration directory");
+            if let Err(err) = fs::create_dir_all(parent_dir) {
+                eprintln!("{}", format!("❌ Failed to create configuration directory '{}': {}", parent_dir.display(), err).red());
+                std::process::exit(1);
+            }
         }
     }
 }
 
 // expand path if needed
-pub fn expand_path(input: &str) -> PathBuf {
+pub fn expand_path(input: &str) -> Result<PathBuf, String> {
     if input == "." {
-        std::env::current_dir().expect("Unable to resolve current directory")
+        std::env::current_dir()
+            .map_err(|e| format!("Unable to resolve current directory: {}", e))
     } else if input.starts_with('~') {
         dirs_next::home_dir()
             .map(|home_dir| home_dir.join(&input[1..]))
-            .unwrap_or_else(|| {
-                panic!("Unable to determine home directory. Please set HOME environment variable correctly.");
-            })
+            .ok_or_else(|| "Unable to determine home directory. Please set HOME correctly.".to_string())
     } else {
-        PathBuf::from(input)
+        Ok(PathBuf::from(input))
     }
 }
 

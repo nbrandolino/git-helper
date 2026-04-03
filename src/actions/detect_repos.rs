@@ -5,7 +5,13 @@ use std::fs;
 use std::path::Path;
 
 pub fn main(directory: &str, config_path: &Path) {
-    let dir_path = expand_path(directory);
+    let dir_path = match expand_path(directory) {
+        Ok(p) => p,
+        Err(e) => {
+            eprintln!("{}", format!("❌ {}", e).red());
+            return;
+        }
+    };
 
     if !dir_path.is_dir() {
         eprintln!("{}", format!("❌ Error: '{}' is not a valid directory.", directory).red());
@@ -31,6 +37,6 @@ pub fn main(directory: &str, config_path: &Path) {
     if found_repos > 0 {
         write_config(config_path, &config);
     } else {
-        println!("{}", format!("⚠ No new Git repositories found.").yellow());
+        println!("{}", "⚠ No new Git repositories found.".yellow());
     }
 }

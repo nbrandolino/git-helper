@@ -14,17 +14,15 @@ pub fn main(repo_path: &str) {
 
     println!("Pushing repository at: {}", repo_path);
 
-    let output = Command::new("git")
+    let result = Command::new("git")
         .arg("-C")
         .arg(repo_path)
         .arg("push")
         .arg("--all")
-        .stdout(std::process::Stdio::inherit())
-        .stderr(std::process::Stdio::inherit())
-        .output();
+        .status();
 
-    match output {
-        Ok(status) if status.status.success() => {
+    match result {
+        Ok(status) if status.success() => {
             println!("{}", format!("✔ Successfully pushed: {}", repo_path).green());
         }
         Ok(_) => {

@@ -44,7 +44,7 @@ pub fn build_cli() -> clap::Command {
             clap::Arg::new("detect-repos")
                 .long("detect-repos")
                 .short('d')
-                .help("Detects Git repositories in the specified directory and adds them to the configuration")
+                .help("Detects Git repositories in the immediate children of the specified directory and adds them to the configuration")
                 .value_parser(clap::value_parser!(String)),
         )
         // pull-all

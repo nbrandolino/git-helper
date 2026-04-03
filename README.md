@@ -41,7 +41,7 @@ git-helper [OPTIONS]
 - `-a, --add-repo <PATH>`: Adds a new repository to be managed.
 - `-r, --remove-repo <IDENTIFIER>`: Removes a repository from management.
 - `-l, --list-repos`: Lists all managed repositories.
-- `-d, --detect-repos`: Detects Git repositories in the specified directory and adds them to the configuration.
+- `-d, --detect-repos`: Detects Git repositories in the immediate children of the specified directory and adds them to the configuration.
 - `-p, --pull`: Pulls the latest changes for all managed repositories.
 - `-P, --push`: Pushes the latest changes for all managed repositories to their remotes.
 - `-c, --clone-remote-branches <IDENTIFIER>`: Creates local branches for all remote branches of a specific repository.

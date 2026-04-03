@@ -13,17 +13,15 @@ pub fn main(repo_path: &str) {
 
     println!("Pulling repository at: {}", repo_path);
 
-    let output = std::process::Command::new("git")
+    let result = std::process::Command::new("git")  // (or Command::new in push_all)
         .arg("-C")
         .arg(repo_path)
-        .arg("pull")
+        .arg("pull")  // or "push"
         .arg("--all")
-        .stdout(std::process::Stdio::inherit())
-        .stderr(std::process::Stdio::inherit())
-        .output();
+        .status();
 
-    match output {
-        Ok(status) if status.status.success() => {
+    match result {
+        Ok(status) if status.success() => {
             println!("{}", format!("✔ Successfully pulled: {}", repo_path).green());
         }
         Ok(_) => {

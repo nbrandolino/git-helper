@@ -3,7 +3,6 @@ use crate::utils::{expand_path, validate_git_repo};
 use colored::Colorize;
 use std::path::Path;
 
-// add repo to config file
 pub fn main(repo_path: &str, config_path: &Path) {
     let expanded_path = match expand_path(repo_path) {
         Ok(p) => p,

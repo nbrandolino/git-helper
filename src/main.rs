@@ -6,7 +6,6 @@ use std::path::PathBuf;
 use colored::Colorize;
 use dirs_next;
 
-// main function
 fn main() {
     let matches = cli::build_cli().get_matches();
 
@@ -25,37 +24,30 @@ fn main() {
 
     utils::ensure_config_dir_exists(&config_path);
 
-    // add-repo
     if let Some(repo_path) = matches.get_one::<String>("add-repo") {
         add_repo::main(repo_path, &config_path);
     }
-    // remove-repo
     else if let Some(repo_identifier) = matches.get_one::<String>("remove-repo") {
         remove_repo::main(repo_identifier, &config_path);
     }
-    // list-repos
     else if matches.get_flag("list-repos") {
         list_repos::main(&config_path);
     }
-    // detect
     else if let Some(directory) = matches.get_one::<String>("detect-repos") {
         detect_repos::main(directory, &config_path);
     }
-    // pull-all
     else if matches.get_flag("pull") {
         let config = config::read_config(&config_path);
         for repo in &config.repositories {
             pull_all::main(repo);
         }
     }
-    // push-all
     else if matches.get_flag("push") {
         let config = config::read_config(&config_path);
         for repo in &config.repositories {
             push_all::main(repo);
         }
     }
-    // clone remote branches
     else if let Some(repo_identifier) = matches.get_one::<String>("clone-remote-branches") {
         clone_remote_branches::main(repo_identifier, &config_path);
     }

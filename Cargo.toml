@@ -17,12 +17,11 @@ opt-level = "z"
 panic = "abort"
 strip = true
 
-[profile.development]
+[profile.dev]
 codegen-units = 256
 debug-assertions = true
 debug = true
 incremental = true
-inherits = "dev"
 lto = "off"
 opt-level = 0
 overflow-checks = true

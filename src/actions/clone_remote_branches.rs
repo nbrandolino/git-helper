@@ -4,7 +4,6 @@ use colored::Colorize;
 use std::path::Path;
 use std::process::Command;
 
-/// clones all remote branches as local branches
 pub fn main(repo_identifier: &str, config_path: &Path) {
     let config = read_config(config_path);
 

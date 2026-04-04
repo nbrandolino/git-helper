@@ -2,7 +2,6 @@ use crate::config::{read_config, write_config};
 use colored::Colorize;
 use std::path::Path;
 
-// remove repo
 pub fn main(repo_identifier: &str, config_path: &Path) {
     let mut config = read_config(config_path);
 

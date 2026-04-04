@@ -9,14 +9,13 @@ pub struct Config {
     pub repositories: HashSet<String>,
 }
 
-// read config file
 pub fn read_config(config_path: &Path) -> Config {
     match fs::read_to_string(config_path) {
         Ok(content) => match toml::from_str(&content) {
             Ok(config) => config,
             Err(e) => {
                 eprintln!("{}", format!("❌ Error parsing config file '{}': {}", config_path.display(), e).red());
-                Config::default()
+                std::process::exit(1);
             }
         },
         Err(e) => {
@@ -26,7 +25,6 @@ pub fn read_config(config_path: &Path) -> Config {
     }
 }
 
-// write to config file
 pub fn write_config(config_path: &Path, config: &Config) {
     let content = match toml::to_string(config) {
         Ok(c) => c,

@@ -2,7 +2,6 @@ use colored::Colorize;
 use std::path::{Path, PathBuf};
 use std::fs;
 
-// ensure config dir exists
 pub fn ensure_config_dir_exists(config_path: &Path) {
     if let Some(parent_dir) = config_path.parent() {
         if !parent_dir.exists() {
@@ -14,7 +13,6 @@ pub fn ensure_config_dir_exists(config_path: &Path) {
     }
 }
 
-// expand path if needed
 pub fn expand_path(input: &str) -> Result<PathBuf, String> {
     if input == "." {
         std::env::current_dir()
@@ -29,7 +27,6 @@ pub fn expand_path(input: &str) -> Result<PathBuf, String> {
     }
 }
 
-// validate if repo is a git repo
 pub fn validate_git_repo(repo_path: &Path) -> Result<(), String> {
     if !repo_path.exists() {
         return Err(format!("Path does not exist: {}", repo_path.display()));

@@ -23,7 +23,7 @@ let matches: Vec<String> = config.repositories
     .cloned()
     .collect();
 
-match matches.len() {
+    match matches.len() {
     0 => {
         eprintln!("{}", format!("❌ Repository not found: {}", repo_identifier).red());
     }

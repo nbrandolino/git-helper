@@ -14,21 +14,33 @@ pub fn main(repo_identifier: &str, config_path: &Path) {
         }
     }
     else {
-        let repo_path = config
+        let matches: Vec<&String> = config
             .repositories
             .iter()
-            .find(|repo| {
+            .filter(|repo| {
                 Path::new(repo)
                     .file_name()
                     .map(|name| name.to_string_lossy() == repo_identifier)
                     .unwrap_or(false)
-            });
+            })
+            .collect();
 
-        if let Some(repo_path) = repo_path {
-            clone_branches(repo_path);
-        }
-        else {
-            eprintln!("{}", format!("❌ Repository identifier '{}' not found in configuration.", repo_identifier).red());
+        match matches.len() {
+            0 => {
+                eprintln!("{}", format!("❌ Repository identifier '{}' not found in configuration.", repo_identifier).red());
+            }
+            1 => {
+                clone_branches(matches[0]);
+            }
+            _ => {
+                eprintln!("{}", format!(
+                    "❌ Ambiguous identifier '{}' matches multiple repositories. Please use the full path:",
+                    repo_identifier
+                ).red());
+                for path in &matches {
+                    eprintln!("   - {}", path);
+                }
+            }
         }
     }
 }

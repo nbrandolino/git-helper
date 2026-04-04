@@ -4,6 +4,7 @@ use git_helper::actions::*;
 use git_helper::utils;
 use std::path::PathBuf;
 use colored::Colorize;
+use dirs_next;
 
 // main function
 fn main() {

@@ -1,5 +1,5 @@
 el9-build:
-  extends: .rust_rpm_template
+  extends: .rpm_build_template
   image: quay.lab.vanth.io/nbrandolino/rockylinux:9
   stage: package
   tags:

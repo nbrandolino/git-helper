@@ -1,0 +1,19 @@
+el10-build:
+  extends: .rpm_build_template
+  image: quay.lab.vanth.io/nbrandolino/rockylinux:10
+  stage: package
+  tags:
+    - lab
+
+  before_script:
+    - dnf install epel-release -y
+    - dnf upgrade -y
+    - dnf install
+        gcc gcc-c++
+        rpm-build rpmdevtools
+        openssl-devel pkgconfig
+        git tar gzip -y
+
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y
+    - source "$CARGO_HOME/env"
+    - cargo install cargo-generate-rpm

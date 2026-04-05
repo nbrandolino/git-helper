@@ -1,7 +1,7 @@
-el10-build:
-  extends: .rust_rpm_template
+el10-test:
+  extends: .test_template
   image: quay.lab.vanth.io/nbrandolino/rockylinux:10
-  stage: package
+  stage: test
   tags:
     - lab
 
@@ -16,4 +16,3 @@ el10-build:
 
     - curl https://sh.rustup.rs -sSf | sh -s -- -y
     - source "$CARGO_HOME/env"
-    - cargo install cargo-generate-rpm

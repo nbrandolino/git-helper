@@ -1,0 +1,18 @@
+fedora42-build:
+  extends: .rpm_build_template
+  image: quay.lab.vanth.io/nbrandolino/fedora:42
+  stage: package
+  tags:
+    - lab
+
+  before_script:
+    - dnf upgrade -y
+    - dnf install
+        gcc gcc-c++
+        rpm-build rpmdevtools
+        openssl-devel pkg-config
+        git tar gzip -y
+
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y
+    - source "$CARGO_HOME/env"
+    - cargo install cargo-generate-rpm

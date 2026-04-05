@@ -1,0 +1,16 @@
+.test_template:
+  variables:
+    CARGO_HOME: "$CI_PROJECT_DIR/.cargo"
+    RUSTUP_HOME: "$CI_PROJECT_DIR/.rustup"
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "test"'
+
+  cache:
+    paths:
+      - .cargo/registry/
+      - .cargo/git/
+
+  script:
+    - cargo build
+    - cargo test

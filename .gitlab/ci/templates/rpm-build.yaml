@@ -1,4 +1,4 @@
-.rust_rpm_template:
+.rpm_build_template:
   variables:
     CARGO_HOME: "$CI_PROJECT_DIR/.cargo"
     RUSTUP_HOME: "$CI_PROJECT_DIR/.rustup"

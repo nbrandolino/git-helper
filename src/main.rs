@@ -25,31 +25,31 @@ fn main() {
     utils::ensure_config_dir_exists(&config_path);
 
     if let Some(repo_path) = matches.get_one::<String>("add-repo") {
-        add_repo::main(repo_path, &config_path);
+        add_repo::add_repo(repo_path, &config_path);
     }
     else if let Some(repo_identifier) = matches.get_one::<String>("remove-repo") {
-        remove_repo::main(repo_identifier, &config_path);
+        remove_repo::remove_repo(repo_identifier, &config_path);
     }
     else if matches.get_flag("list-repos") {
-        list_repos::main(&config_path);
+        list_repos::list_repos(&config_path);
     }
     else if let Some(directory) = matches.get_one::<String>("detect-repos") {
-        detect_repos::main(directory, &config_path);
+        detect_repos::detect_repos(directory, &config_path);
     }
     else if matches.get_flag("pull") {
         let config = config::read_config(&config_path);
         for repo in &config.repositories {
-            pull_all::main(repo);
+            pull::pull(repo);
         }
     }
     else if matches.get_flag("push") {
         let config = config::read_config(&config_path);
         for repo in &config.repositories {
-            push_all::main(repo);
+            push::push(repo);
         }
     }
     else if let Some(repo_identifier) = matches.get_one::<String>("clone-remote-branches") {
-        clone_remote_branches::main(repo_identifier, &config_path);
+        clone_remote_branches::clone_remote_branches(repo_identifier, &config_path);
     }
     else {
         println!("No action specified. Use --help for usage.");

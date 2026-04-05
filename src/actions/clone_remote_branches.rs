@@ -4,7 +4,7 @@ use colored::Colorize;
 use std::path::Path;
 use std::process::Command;
 
-pub fn main(repo_identifier: &str, config_path: &Path) {
+pub fn clone_remote_branches(repo_identifier: &str, config_path: &Path) {
     let config = read_config(config_path);
 
     if repo_identifier == "all" {

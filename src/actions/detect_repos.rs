@@ -4,7 +4,7 @@ use colored::Colorize;
 use std::fs;
 use std::path::Path;
 
-pub fn main(directory: &str, config_path: &Path) {
+pub fn detect_repos(directory: &str, config_path: &Path) {
     let dir_path = match expand_path(directory) {
         Ok(p) => p,
         Err(e) => {

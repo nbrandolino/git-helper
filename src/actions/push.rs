@@ -3,35 +3,15 @@ use colored::Colorize;
 use std::path::Path;
 use std::process::Command;
 
-pub fn main(repo_path: &str) {
+pub fn push(repo_path: &str) {
     let path = Path::new(repo_path);
 
     if let Err(err) = validate_git_repo(path) {
-        eprintln!("{}", format!("❌ Cannot pull repository: {}", err).red());
+        eprintln!("{}", format!("❌ Cannot push repository: {}", err).red());
         return;
     }
 
-    println!("Pulling repository at: {}", repo_path);
-
-    // check for uncommitted changes
-    let status_output = Command::new("git")
-        .arg("-C")
-        .arg(repo_path)
-        .arg("status")
-        .arg("--porcelain")
-        .output();
-
-    match status_output {
-        Ok(output) if !output.stdout.is_empty() => {
-            eprintln!("{}", format!("⚠ Skipping '{}': repository has uncommitted changes.", repo_path).yellow());
-            return;
-        }
-        Err(err) => {
-            eprintln!("{}", format!("❌ Error checking status of '{}': {:?}", repo_path, err).red());
-            return;
-        }
-        _ => {}
-    }
+    println!("Pushing repository at: {}", repo_path);
 
     // save the current branch
     let current_branch_output = Command::new("git")
@@ -55,19 +35,6 @@ pub fn main(repo_path: &str) {
             return;
         }
     };
-
-    // fetch all remotes
-    let fetch_output = Command::new("git")
-        .arg("-C")
-        .arg(repo_path)
-        .arg("fetch")
-        .arg("--all")
-        .output();
-
-    if let Err(err) = fetch_output {
-        eprintln!("{}", format!("❌ Error fetching remotes for '{}': {:?}", repo_path, err).red());
-        return;
-    }
 
     // list all local branches
     let branch_output = Command::new("git")
@@ -129,24 +96,24 @@ pub fn main(repo_path: &str) {
             continue;
         }
 
-        // pull the branch
-        let pull_output = Command::new("git")
+        // push the branch
+        let push_output = Command::new("git")
             .arg("-C")
             .arg(repo_path)
-            .arg("pull")
+            .arg("push")
             .output();
 
-        match pull_output {
+        match push_output {
             Ok(output) if output.status.success() => {
-                println!("{}", format!("✔ Pulled branch '{}' in '{}'.", branch_name, repo_path).green());
+                println!("{}", format!("✔ Pushed branch '{}' in '{}'.", branch_name, repo_path).green());
             }
             Ok(output) => {
-                eprintln!("{}", format!("❌ Failed to pull branch '{}' in '{}': {}",
+                eprintln!("{}", format!("❌ Failed to push branch '{}' in '{}': {}",
                     branch_name, repo_path,
                     String::from_utf8_lossy(&output.stderr)).red());
             }
             Err(err) => {
-                eprintln!("{}", format!("❌ Error pulling branch '{}' in '{}': {:?}", branch_name, repo_path, err).red());
+                eprintln!("{}", format!("❌ Error pushing branch '{}' in '{}': {:?}", branch_name, repo_path, err).red());
             }
         }
     }

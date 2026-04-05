@@ -3,7 +3,7 @@ use colored::Colorize;
 use std::path::Path;
 use std::process::Command;
 
-pub fn pull(repo_path: &str) {
+pub fn pull(repo_path: &str, quiet: bool) {
     let path = Path::new(repo_path);
 
     if let Err(err) = validate_git_repo(path) {
@@ -11,7 +11,9 @@ pub fn pull(repo_path: &str) {
         return;
     }
 
-    println!("Pulling repository at: {}", repo_path);
+    if !quiet {
+        println!("Pulling repository at: {}", repo_path);
+    }
 
     // check for uncommitted changes
     let status_output = Command::new("git")
@@ -138,7 +140,9 @@ pub fn pull(repo_path: &str) {
 
         match pull_output {
             Ok(output) if output.status.success() => {
-                println!("{}", format!("✔ Pulled branch '{}' in '{}'.", branch_name, repo_path).green());
+                if !quiet {
+                    println!("{}", format!("✔ Pulled branch '{}' in '{}'.", branch_name, repo_path).green());
+                }
             }
             Ok(output) => {
                 eprintln!("{}", format!("❌ Failed to pull branch '{}' in '{}': {}",
@@ -161,7 +165,9 @@ pub fn pull(repo_path: &str) {
 
     match restore_output {
         Ok(output) if output.status.success() => {
-            println!("{}", format!("✔ Restored original branch '{}' in '{}'.", current_branch, repo_path).green());
+            if !quiet {
+                println!("{}", format!("✔ Restored original branch '{}' in '{}'.", current_branch, repo_path).green());
+            }
         }
         Ok(output) => {
             eprintln!("{}", format!("❌ Failed to restore branch '{}' in '{}': {}",

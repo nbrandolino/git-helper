@@ -3,7 +3,7 @@ use crate::utils::{expand_path, validate_git_repo};
 use colored::Colorize;
 use std::path::Path;
 
-pub fn add_repo(repo_path: &str, config_path: &Path) {
+pub fn add_repo(repo_path: &str, config_path: &Path, quiet: bool) {
     let expanded_path = match expand_path(repo_path) {
         Ok(p) => p,
         Err(e) => {
@@ -18,10 +18,14 @@ pub fn add_repo(repo_path: &str, config_path: &Path) {
 
     let mut config = read_config(config_path);
     if !config.repositories.insert(expanded_path.to_string_lossy().to_string()) {
-        println!("{}", format!("⚠ Repository already exists: {}", repo_path).yellow());
+        if !quiet {
+            println!("{}", format!("⚠ Repository already exists: {}", repo_path).yellow());
+        }
         return;
     }
 
     write_config(config_path, &config);
-    println!("{}", format!("✔ Added repository: {}", expanded_path.display()).green());
+    if !quiet {
+        println!("{}", format!("✔ Added repository: {}", expanded_path.display()).green());
+    }
 }

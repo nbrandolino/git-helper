@@ -14,6 +14,13 @@ pub fn build_cli() -> clap::Command {
                 .value_parser(clap::value_parser!(String)),
         )
         .arg(
+            clap::Arg::new("quiet")
+                .long("quiet")
+                .short('q')
+                .help("Suppress informational output; only show warnings and errors")
+                .action(clap::ArgAction::SetTrue),
+        )
+        .arg(
             clap::Arg::new("add-repo")
                 .long("add-repo")
                 .short('a')

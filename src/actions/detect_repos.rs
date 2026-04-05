@@ -4,7 +4,7 @@ use colored::Colorize;
 use std::fs;
 use std::path::Path;
 
-pub fn detect_repos(directory: &str, config_path: &Path) {
+pub fn detect_repos(directory: &str, config_path: &Path, quiet: bool) {
     let dir_path = match expand_path(directory) {
         Ok(p) => p,
         Err(e) => {
@@ -27,7 +27,9 @@ pub fn detect_repos(directory: &str, config_path: &Path) {
             if path.is_dir() && path.join(".git").exists() {
                 let repo_path = path.to_string_lossy().to_string();
                 if config.repositories.insert(repo_path.clone()) {
-                    println!("{}", format!("✔ Added Git repository: {}", repo_path).green());
+                    if !quiet {
+                        println!("{}", format!("✔ Added Git repository: {}", repo_path).green());
+                    }
                     found_repos += 1;
                 }
             }
@@ -36,7 +38,7 @@ pub fn detect_repos(directory: &str, config_path: &Path) {
 
     if found_repos > 0 {
         write_config(config_path, &config);
-    } else {
+    } else if !quiet {
         println!("{}", "⚠ No new Git repositories found.".yellow());
     }
 }

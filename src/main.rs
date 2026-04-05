@@ -8,6 +8,7 @@ use dirs_next;
 
 fn main() {
     let matches = cli::build_cli().get_matches();
+    let quiet = matches.get_flag("quiet");
 
     // Determine config file path
     let config_path = if let Some(config_file) = matches.get_one::<String>("config") {
@@ -25,33 +26,35 @@ fn main() {
     utils::ensure_config_dir_exists(&config_path);
 
     if let Some(repo_path) = matches.get_one::<String>("add-repo") {
-        add_repo::add_repo(repo_path, &config_path);
+        add_repo::add_repo(repo_path, &config_path, quiet);
     }
     else if let Some(repo_identifier) = matches.get_one::<String>("remove-repo") {
-        remove_repo::remove_repo(repo_identifier, &config_path);
+        remove_repo::remove_repo(repo_identifier, &config_path, quiet);
     }
     else if matches.get_flag("list-repos") {
-        list_repos::list_repos(&config_path);
+        list_repos::list_repos(&config_path, quiet);
     }
     else if let Some(directory) = matches.get_one::<String>("detect-repos") {
-        detect_repos::detect_repos(directory, &config_path);
+        detect_repos::detect_repos(directory, &config_path, quiet);
     }
     else if matches.get_flag("pull") {
         let config = config::read_config(&config_path);
         for repo in &config.repositories {
-            pull::pull(repo);
+            pull::pull(repo, quiet);
         }
     }
     else if matches.get_flag("push") {
         let config = config::read_config(&config_path);
         for repo in &config.repositories {
-            push::push(repo);
+            push::push(repo, quiet);
         }
     }
     else if let Some(repo_identifier) = matches.get_one::<String>("clone-remote-branches") {
-        clone_remote_branches::clone_remote_branches(repo_identifier, &config_path);
+        clone_remote_branches::clone_remote_branches(repo_identifier, &config_path, quiet);
     }
     else {
-        println!("No action specified. Use --help for usage.");
+        if !quiet {
+            println!("No action specified. Use --help for usage.");
+        }
     }
 }

@@ -14,17 +14,20 @@ pub fn ensure_config_dir_exists(config_path: &Path) {
 }
 
 pub fn expand_path(input: &str) -> Result<PathBuf, String> {
-    if input == "." {
+    let path = if input == "." {
         std::env::current_dir()
-            .map_err(|e| format!("Unable to resolve current directory: {}", e))
+            .map_err(|e| format!("Unable to resolve current directory: {}", e))?
     } else if input.starts_with('~') {
         let rest = if input.starts_with("~/") { &input[2..] } else { &input[1..] };
         dirs_next::home_dir()
             .map(|home_dir| home_dir.join(rest))
-            .ok_or_else(|| "Unable to determine home directory. Please set HOME correctly.".to_string())
+            .ok_or_else(|| "Unable to determine home directory. Please set HOME correctly.".to_string())?
     } else {
-        Ok(PathBuf::from(input))
-    }
+        PathBuf::from(input)
+    };
+
+    std::fs::canonicalize(&path)
+        .map_err(|e| format!("Unable to resolve path '{}': {}", path.display(), e))
 }
 
 pub fn validate_git_repo(repo_path: &Path) -> Result<(), String> {

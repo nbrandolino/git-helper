@@ -1,5 +1,6 @@
 use colored::Colorize;
 use std::fs;
+use std::io::ErrorKind;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::path::Path;
@@ -18,9 +19,12 @@ pub fn read_config(config_path: &Path) -> Config {
                 std::process::exit(1);
             }
         },
+        Err(e) if e.kind() == ErrorKind::NotFound => {
+            Config::default()
+        }
         Err(e) => {
             eprintln!("{}", format!("❌ Could not read config file '{}': {}", config_path.display(), e).red());
-            Config::default()
+            std::process::exit(1);
         }
     }
 }

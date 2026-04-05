@@ -13,6 +13,26 @@ pub fn push(repo_path: &str) {
 
     println!("Pushing repository at: {}", repo_path);
 
+    // check for uncommitted changes
+    let status_output = Command::new("git")
+        .arg("-C")
+        .arg(repo_path)
+        .arg("status")
+        .arg("--porcelain")
+        .output();
+
+    match status_output {
+        Ok(output) if !output.stdout.is_empty() => {
+            eprintln!("{}", format!("⚠ Skipping '{}': repository has uncommitted changes.", repo_path).yellow());
+            return;
+        }
+        Err(err) => {
+            eprintln!("{}", format!("❌ Error checking status of '{}': {:?}", repo_path, err).red());
+            return;
+        }
+        _ => {}
+    }
+
     // save the current branch
     let current_branch_output = Command::new("git")
         .arg("-C")

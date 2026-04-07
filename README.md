@@ -8,15 +8,11 @@
 
 ## Installation
 ### Install From Source
-1. Clone the repository:
-   ```bash
-   git clone https://gitlab.lab.vanth.io/nbrandolino/git-helper.git
-   ```
-2. Navigate to the project directory:
+1. Navigate to the project directory:
    ```bash
    cd git-helper
    ```
-3. Install:
+2. Install:
    ```bash
    cargo install --path .
    ```
@@ -87,6 +83,9 @@ The tool uses a configuration file located at:
 ~/.config/git-helper/git-helper.toml
 ```
 This file stores the list of repositories being managed.
+
+## Disclaimer
+> **Note:** This GitHub repository is a mirror of a private, self-hosted GitLab repository.
 
 ## License
 This tool is licensed under the GNU General Public License (GPL). See the `LICENSE` file for more details.

@@ -48,31 +48,35 @@ git-helper [OPTIONS]
    ```bash
    git-helper -C /path/git-helper.toml
    ```
-2. Add a repository:
+2. Quiet output:
+   ```bash
+   git-helper -p -q
+   ```
+3. Add a repository:
    ```bash
    git-helper -a /path/to/repo
    ```
-3. Remove a repository:
+4. Remove a repository:
    ```bash
    git-helper -r repo-name
    ```
-4. List all repositories:
+5. List all repositories:
    ```bash
    git-helper -l
    ```
-5. Detect new repositories in given directory:
+6. Detect new repositories in given directory:
    ```bash
    git-helper -d .
    ```
-6. Pull changes for all repositories:
+7. Pull changes for all repositories:
    ```bash
    git-helper -p
    ```
-7. Push changes for all repositories:
+8. Push changes for all repositories:
    ```bash
    git-helper -P
    ```
-8. Clone remote branches:
+9. Clone remote branches:
    ```bash
    git-helper -c repo-name
    ```

@@ -4,18 +4,18 @@ use colored::Colorize;
 use std::fs;
 use std::path::Path;
 
-pub fn detect_repos(directory: &str, config_path: &Path, quiet: bool) {
+pub fn detect_repos(directory: &str, config_path: &Path, quiet: bool) -> bool {
     let dir_path = match expand_path(directory) {
         Ok(p) => p,
         Err(e) => {
             eprintln!("{}", format!("❌ {}", e).red());
-            return;
+            return false;
         }
     };
 
     if !dir_path.is_dir() {
         eprintln!("{}", format!("❌ Error: '{}' is not a valid directory.", directory).red());
-        return;
+        return false;
     }
 
     let mut config = read_config(config_path);
@@ -39,9 +39,10 @@ pub fn detect_repos(directory: &str, config_path: &Path, quiet: bool) {
     if found_repos > 0 {
         if let Err(err) = write_config(config_path, &config) {
             eprintln!("{}", format!("❌ {}", err).red());
-            return;
+            return false;
         }
     } else if !quiet {
         println!("{}", "⚠ No new Git repositories found.".yellow());
     }
+    true
 }

@@ -23,43 +23,49 @@ fn main() {
         dirs_next::home_dir()
             .map(|home| home.join(".config/git-helper/git-helper.toml"))
             .unwrap_or_else(|| {
-                eprintln!("{}", format!("❌ Unable to find home directory. Please set HOME environment variable correctly.").red());
+                eprintln!("{}", "❌ Unable to find home directory. Please set HOME environment variable correctly.".red());
                 std::process::exit(1);
             })
     };
 
     utils::ensure_config_dir_exists(&config_path);
 
-    if let Some(repo_path) = matches.get_one::<String>("add-repo") {
-        add_repo::add_repo(repo_path, &config_path, quiet);
+    let success = if let Some(repo_path) = matches.get_one::<String>("add-repo") {
+        add_repo::add_repo(repo_path, &config_path, quiet)
     }
     else if let Some(repo_identifier) = matches.get_one::<String>("remove-repo") {
-        remove_repo::remove_repo(repo_identifier, &config_path, quiet);
+        remove_repo::remove_repo(repo_identifier, &config_path, quiet)
     }
     else if matches.get_flag("list-repos") {
         list_repos::list_repos(&config_path, quiet);
+        true
     }
     else if let Some(directory) = matches.get_one::<String>("detect-repos") {
-        detect_repos::detect_repos(directory, &config_path, quiet);
+        detect_repos::detect_repos(directory, &config_path, quiet)
     }
     else if matches.get_flag("pull") {
         let config = config::read_config(&config_path);
-        for repo in &config.repositories {
-            pull::pull(repo, quiet);
-        }
+        config.repositories.iter().fold(true, |ok, repo| {
+            pull::pull(repo, quiet) && ok
+        })
     }
     else if matches.get_flag("push") {
         let config = config::read_config(&config_path);
-        for repo in &config.repositories {
-            push::push(repo, quiet);
-        }
+        config.repositories.iter().fold(true, |ok, repo| {
+            push::push(repo, quiet) && ok
+        })
     }
     else if let Some(repo_identifier) = matches.get_one::<String>("clone-remote-branches") {
-        clone_remote_branches::clone_remote_branches(repo_identifier, &config_path, quiet);
+        clone_remote_branches::clone_remote_branches(repo_identifier, &config_path, quiet)
     }
     else {
         if !quiet {
             println!("No action specified. Use --help for usage.");
         }
+        true
+    };
+
+    if !success {
+        std::process::exit(1);
     }
 }

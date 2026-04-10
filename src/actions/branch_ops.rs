@@ -38,12 +38,12 @@ impl BranchOperation {
     }
 }
 
-pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool) {
+pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool) -> bool {
     let path = Path::new(repo_path);
 
     if let Err(err) = validate_git_repo(path) {
         eprintln!("{}", format!("❌ Cannot {} repository: {}", operation.verb(), err).red());
-        return;
+        return false;
     }
 
     if !quiet {
@@ -61,11 +61,11 @@ pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool)
     match status_output {
         Ok(output) if !output.stdout.is_empty() => {
             eprintln!("{}", format!("⚠ Skipping '{}': repository has uncommitted changes.", repo_path).yellow());
-            return;
+            return true;
         }
         Err(err) => {
             eprintln!("{}", format!("❌ Error checking status of '{}': {:?}", repo_path, err).red());
-            return;
+            return false;
         }
         _ => {}
     }
@@ -85,17 +85,17 @@ pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool)
                 Ok(s) => s.trim().to_string(),
                 Err(_) => {
                     eprintln!("{}", format!("❌ Branch name for '{}' contains invalid UTF-8.", repo_path).red());
-                    return;
+                    return false;
                 }
             }
         }
         Ok(_) => {
             eprintln!("{}", format!("⚠ Skipping '{}': repository is in detached HEAD state.", repo_path).yellow());
-            return;
+            return true;
         }
         Err(err) => {
             eprintln!("{}", format!("❌ Error determining current branch for '{}': {:?}", repo_path, err).red());
-            return;
+            return false;
         }
     };
 
@@ -114,11 +114,11 @@ pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool)
                 eprintln!("{}", format!("❌ Failed to fetch remotes for '{}': {}",
                     repo_path,
                     String::from_utf8_lossy(&output.stderr)).red());
-                return;
+                return false;
             }
             Err(err) => {
                 eprintln!("{}", format!("❌ Error fetching remotes for '{}': {:?}", repo_path, err).red());
-                return;
+                return false;
             }
         }
     }
@@ -136,7 +136,7 @@ pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool)
                 Ok(s) => s,
                 Err(_) => {
                     eprintln!("{}", format!("❌ Branch list for '{}' contains invalid UTF-8.", repo_path).red());
-                    return;
+                    return false;
                 }
             }
         }
@@ -144,13 +144,15 @@ pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool)
             eprintln!("{}", format!("❌ Failed to list branches for '{}': {}",
                 repo_path,
                 String::from_utf8_lossy(&output.stderr)).red());
-            return;
+            return false;
         }
         Err(err) => {
             eprintln!("{}", format!("❌ Error listing branches for '{}': {:?}", repo_path, err).red());
-            return;
+            return false;
         }
     };
+
+    let mut had_error = false;
 
     for branch in branches.lines() {
         let branch_name = branch.trim().trim_start_matches("* ");
@@ -182,10 +184,12 @@ pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool)
                 eprintln!("{}", format!("❌ Failed to checkout branch '{}' in '{}': {}",
                     branch_name, repo_path,
                     String::from_utf8_lossy(&output.stderr)).red());
+                had_error = true;
                 continue;
             }
         } else {
             eprintln!("{}", format!("❌ Error checking out branch '{}' in '{}'.", branch_name, repo_path).red());
+            had_error = true;
             continue;
         }
 
@@ -207,10 +211,12 @@ pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool)
                 eprintln!("{}", format!("❌ Failed to {} branch '{}' in '{}': {}",
                     operation.verb(), branch_name, repo_path,
                     String::from_utf8_lossy(&output.stderr)).red());
+                had_error = true;
             }
             Err(err) => {
                 eprintln!("{}", format!("❌ Error {}ing branch '{}' in '{}': {:?}",
                     operation.verb(), branch_name, repo_path, err).red());
+                had_error = true;
             }
         }
     }
@@ -234,10 +240,14 @@ pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool)
             eprintln!("{}", format!("❌ Failed to restore branch '{}' in '{}': {}",
                 current_branch, repo_path,
                 String::from_utf8_lossy(&output.stderr)).red());
+            had_error = true;
         }
         Err(err) => {
             eprintln!("{}", format!("❌ Error restoring branch '{}' in '{}': {:?}",
                 current_branch, repo_path, err).red());
+            had_error = true;
         }
     }
+
+    !had_error
 }

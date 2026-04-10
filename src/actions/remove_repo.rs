@@ -2,19 +2,19 @@ use crate::config::{read_config, write_config};
 use colored::Colorize;
 use std::path::Path;
 
-pub fn remove_repo(repo_identifier: &str, config_path: &Path, quiet: bool) {
+pub fn remove_repo(repo_identifier: &str, config_path: &Path, quiet: bool) -> bool {
     let mut config = read_config(config_path);
 
     // full path
     if config.repositories.remove(repo_identifier) {
         if let Err(err) = write_config(config_path, &config) {
             eprintln!("{}", format!("❌ {}", err).red());
-            return;
+            return false;
         }
         if !quiet {
             println!("{}", format!("✔ Removed repository: {}", repo_identifier).green());
         }
-        return;
+        return true;
     }
 
     let matches: Vec<String> = config.repositories
@@ -29,16 +29,18 @@ pub fn remove_repo(repo_identifier: &str, config_path: &Path, quiet: bool) {
     match matches.len() {
         0 => {
             eprintln!("{}", format!("❌ Repository not found: {}", repo_identifier).red());
+            false
         }
         1 => {
             config.repositories.remove(&matches[0]);
             if let Err(err) = write_config(config_path, &config) {
                 eprintln!("{}", format!("❌ {}", err).red());
-                return;
+                return false;
             }
             if !quiet {
                 println!("{}", format!("✔ Removed repository: {}", matches[0]).green());
             }
+            true
         }
         _ => {
             eprintln!("{}", format!(
@@ -48,6 +50,7 @@ pub fn remove_repo(repo_identifier: &str, config_path: &Path, quiet: bool) {
             for path in &matches {
                 eprintln!("   - {}", path);
             }
+            false
         }
     }
 }

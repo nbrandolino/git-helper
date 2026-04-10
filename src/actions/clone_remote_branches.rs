@@ -4,52 +4,55 @@ use colored::Colorize;
 use std::path::Path;
 use std::process::Command;
 
-pub fn clone_remote_branches(repo_identifier: &str, config_path: &Path, quiet: bool) {
+pub fn clone_remote_branches(repo_identifier: &str, config_path: &Path, quiet: bool) -> bool {
     let config = read_config(config_path);
 
     if repo_identifier == "all" {
+        let mut success = true;
         for repo_path in &config.repositories {
-            clone_branches(repo_path, quiet);
+            if !clone_branches(repo_path, quiet) {
+                success = false;
+            }
         }
+        return success;
     }
-    else {
-        let matches: Vec<&String> = config
-            .repositories
-            .iter()
-            .filter(|repo| {
-                Path::new(repo)
-                    .file_name()
-                    .map(|name| name.to_string_lossy() == repo_identifier)
-                    .unwrap_or(false)
-            })
-            .collect();
 
-        match matches.len() {
-            0 => {
-                eprintln!("{}", format!("❌ Repository identifier '{}' not found in configuration.", repo_identifier).red());
+    let matches: Vec<&String> = config
+        .repositories
+        .iter()
+        .filter(|repo| {
+            Path::new(repo)
+                .file_name()
+                .map(|name| name.to_string_lossy() == repo_identifier)
+                .unwrap_or(false)
+        })
+        .collect();
+
+    match matches.len() {
+        0 => {
+            eprintln!("{}", format!("❌ Repository identifier '{}' not found in configuration.", repo_identifier).red());
+            false
+        }
+        1 => clone_branches(matches[0], quiet),
+        _ => {
+            eprintln!("{}", format!(
+                "❌ Ambiguous identifier '{}' matches multiple repositories. Please use the full path:",
+                repo_identifier
+            ).red());
+            for path in &matches {
+                eprintln!("   - {}", path);
             }
-            1 => {
-                clone_branches(matches[0], quiet);
-            }
-            _ => {
-                eprintln!("{}", format!(
-                    "❌ Ambiguous identifier '{}' matches multiple repositories. Please use the full path:",
-                    repo_identifier
-                ).red());
-                for path in &matches {
-                    eprintln!("   - {}", path);
-                }
-            }
+            false
         }
     }
 }
 
-fn clone_branches(repo_path: &str, quiet: bool) {
+fn clone_branches(repo_path: &str, quiet: bool) -> bool {
     let path = Path::new(repo_path);
 
     if let Err(err) = validate_git_repo(path) {
         eprintln!("{}", format!("❌ Error: {}", err).red());
-        return;
+        return false;
     }
 
     if !quiet { println!("Cloning remote branches for repository: {}", repo_path); }
@@ -68,11 +71,11 @@ fn clone_branches(repo_path: &str, quiet: bool) {
             eprintln!("{}", format!("❌ Failed to fetch remote branches for '{}': {}",
                 repo_path,
                 String::from_utf8_lossy(&output.stderr)).red());
-            return;
+            return false;
         }
         Err(err) => {
-            eprintln!("{}", format!("❌ Error fetching remote branches for '{}': {:?}", repo_path, err).red());
-            return;
+            eprintln!("{}", format!("❌ Error fetching remote branches for '{}': {}", repo_path, err).red());
+            return false;
         }
     }
 
@@ -90,10 +93,11 @@ fn clone_branches(repo_path: &str, quiet: bool) {
                 Ok(s) => s,
                 Err(_) => {
                     eprintln!("{}", format!("❌ Remote branch list for '{}' contains invalid UTF-8.", repo_path).red());
-                    return;
+                    return false;
                 }
             };
-            let branches = branches.as_str();
+
+            let mut had_error = false;
 
             for branch in branches.lines() {
                 let branch = branch.trim();
@@ -134,19 +138,23 @@ fn clone_branches(repo_path: &str, quiet: bool) {
                     .arg(format!("origin/{}", branch_name))
                     .output();
 
-                if let Ok(output) = checkout_output {
-                    if output.status.success() {
-                        if !quiet { println!("{}", format!("✔ Created local branch: {}", branch_name).green()); }
+                match checkout_output {
+                    Ok(output) if output.status.success() => {
+                        if !quiet {
+                            println!("{}", format!("✔ Created local branch: {}", branch_name).green());
+                        }
                     }
-                    else {
-                        eprintln!("{}", format!("❌ Failed to create local branch: {}\nError: {}",
+                    Ok(output) => {
+                        eprintln!("{}", format!("❌ Failed to create local branch '{}': {}",
                             branch_name,
                             String::from_utf8_lossy(&output.stderr)).red());
+                        had_error = true;
                     }
-                }
-                else {
-                    eprintln!("{}", format!("❌ Error running git checkout for branch '{}': {:?}",
-                        branch_name, checkout_output).red());
+                    Err(err) => {
+                        eprintln!("{}", format!("❌ Error running git checkout for branch '{}': {}",
+                            branch_name, err).red());
+                        had_error = true;
+                    }
                 }
             }
 
@@ -164,7 +172,7 @@ fn clone_branches(repo_path: &str, quiet: bool) {
                         Ok(s) => s,
                         Err(_) => {
                             eprintln!("{}", "❌ Default branch name contains invalid UTF-8.".red());
-                            return;
+                            return false;
                         }
                     };
                     let default_branch = raw.trim().replace("refs/remotes/origin/", "");
@@ -176,29 +184,41 @@ fn clone_branches(repo_path: &str, quiet: bool) {
                         .arg(&default_branch)
                         .output();
 
-                    if let Ok(checkout_output) = checkout_default_output {
-                        if checkout_output.status.success() {
-                            if !quiet { println!("{}", format!("✔ Checked out default branch: {}", default_branch).green()); }
+                    match checkout_default_output {
+                        Ok(output) if output.status.success() => {
+                            if !quiet {
+                                println!("{}", format!("✔ Checked out default branch: {}", default_branch).green());
+                            }
                         }
-                        else {
-                            eprintln!("{}", format!("❌ Failed to checkout default branch: {}\nError: {}",
+                        Ok(output) => {
+                            eprintln!("{}", format!("❌ Failed to checkout default branch '{}': {}",
                                 default_branch,
-                                String::from_utf8_lossy(&checkout_output.stderr)).red());
+                                String::from_utf8_lossy(&output.stderr)).red());
+                            had_error = true;
+                        }
+                        Err(err) => {
+                            eprintln!("{}", format!("❌ Error checking out default branch '{}': {}",
+                                default_branch, err).red());
+                            had_error = true;
                         }
                     }
-                }
-                else {
+                } else {
                     eprintln!("{}", "❌ Failed to determine default branch.".red());
+                    had_error = true;
                 }
             }
+
+            !had_error
         }
         Ok(output) => {
             eprintln!("{}", format!("❌ Failed to list remote branches for '{}': {}",
                 repo_path,
                 String::from_utf8_lossy(&output.stderr)).red());
+            false
         }
         Err(err) => {
-            eprintln!("{}", format!("❌ Error listing remote branches: {:?}", err).red());
+            eprintln!("{}", format!("❌ Error listing remote branches for '{}': {}", repo_path, err).red());
+            false
         }
     }
 }

@@ -3,17 +3,17 @@ use crate::utils::{expand_path, validate_git_repo};
 use colored::Colorize;
 use std::path::Path;
 
-pub fn add_repo(repo_path: &str, config_path: &Path, quiet: bool) {
+pub fn add_repo(repo_path: &str, config_path: &Path, quiet: bool) -> bool {
     let expanded_path = match expand_path(repo_path) {
         Ok(p) => p,
         Err(e) => {
             eprintln!("{}", format!("❌ {}", e).red());
-            return;
+            return false;
         }
     };
     if let Err(err) = validate_git_repo(&expanded_path) {
         eprintln!("{}", format!("❌ Failed to add repository: {}", err).red());
-        return;
+        return false;
     }
 
     let mut config = read_config(config_path);
@@ -21,14 +21,15 @@ pub fn add_repo(repo_path: &str, config_path: &Path, quiet: bool) {
         if !quiet {
             println!("{}", format!("⚠ Repository already exists: {}", repo_path).yellow());
         }
-        return;
+        return true;
     }
 
     if let Err(err) = write_config(config_path, &config) {
         eprintln!("{}", format!("❌ {}", err).red());
-        return;
+        return false;
     }
     if !quiet {
         println!("{}", format!("✔ Added repository: {}", expanded_path.display()).green());
     }
+    true
 }

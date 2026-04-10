@@ -16,77 +16,77 @@
    ```bash
    cargo install --path .
    ```
-### Install From Package
-Download the latest release for your system.
-Supported Versions:
-- Enterprise Linux 8
-- Enterprise Linux 9
-- Fedora 42
-- Fedora 43
+
+## Configuration
+The configuration file is located at:
+```
+~/.config/git-helper/git-helper.toml
+```
+This file stores the list of repositories being managed.
 
 ## Usage
-Run the tool using the following command:
 ```bash
 git-helper [OPTIONS]
 ```
 
-### Available Options
-- `-h, --help`: Display help information.
-- `-V, --version`: Display version information.
-- `-C, --config <PATH>`: Specify an alternative configuration file.
-- `-q, --quiet`: Suppress informational output; only show warnings and errors.
-- `-a, --add-repo <PATH>`: Adds a new repository to be managed.
-- `-r, --remove-repo <IDENTIFIER>`: Removes a repository from management.
-- `-l, --list-repos`: Lists all managed repositories.
-- `-d, --detect-repos`: Detects Git repositories in the immediate children of the specified directory and adds them to the configuration.
-- `-p, --pull`: Pulls the latest changes for all managed repositories.
-- `-P, --push`: Pushes the latest changes for all managed repositories to their remotes.
-- `-c, --clone-remote-branches <IDENTIFIER>`: Creates local branches for all remote branches of a specific repository.
+---
 
-### Examples
-1. Specify configuration file:
-   ```bash
-   git-helper -C /path/git-helper.toml
-   ```
-2. Quiet output:
-   ```bash
-   git-helper -p -q
-   ```
-3. Add a repository:
-   ```bash
-   git-helper -a /path/to/repo
-   ```
-4. Remove a repository:
-   ```bash
-   git-helper -r repo-name
-   ```
-5. List all repositories:
-   ```bash
-   git-helper -l
-   ```
-6. Detect new repositories in given directory:
-   ```bash
-   git-helper -d .
-   ```
-7. Pull changes for all repositories:
-   ```bash
-   git-helper -p
-   ```
-8. Push changes for all repositories:
-   ```bash
-   git-helper -P
-   ```
-9. Clone remote branches:
-   ```bash
-   git-helper -c repo-name
-   ```
+## Options
 
-## Configuration
-The tool uses a configuration file located at:
+| Option | Description |
+|---|---|
+| `-h, --help` | Display help information |
+| `-V, --version` | Display version information |
+| `-C, --config <PATH>` | Specify an alternative configuration file |
+| `-q, --quiet` | Suppress informational output; only show warnings and errors |
+| `-a, --add-repo <PATH>` | Add a repository to be managed |
+| `-r, --remove-repo <IDENTIFIER>` | Remove a repository by path or name |
+| `-l, --list-repos` | List all managed repositories |
+| `-d, --detect-repos <DIRECTORY>` | Detect Git repositories in the immediate children of a directory and add them to the configuration |
+| `-p, --pull` | Pull the latest changes for all managed repositories |
+| `-P, --push` | Push the latest changes for all managed repositories to their remotes |
+| `-c, --clone-remote-branches <IDENTIFIER>` | Create local branches for all remote branches of a specific repository |
+
+---
+
+### add-repo
 ```bash
-~/.config/git-helper/git-helper.toml
+git-helper -a /path/to/repo
 ```
-This file stores the list of repositories being managed.
+
+### remove-repo
+Accepts either a full path or a repository name.
+```bash
+git-helper -r /path/to/repo
+git-helper -r repo-name
+```
+
+### detect-repos
+```bash
+git-helper -d /path/to/directory
+git-helper -d .
+```
+
+### pull
+```bash
+git-helper -p
+git-helper -p -q    # suppress output
+```
+
+### push
+```bash
+git-helper -P
+git-helper -P -q    # suppress output
+```
+
+### clone-remote-branches
+Creates a local tracking branch for every remote branch in the specified repository. Accepts a name or `all` to run against every managed repository.
+```bash
+git-helper -c repo-name
+git-helper -c all
+```
+
+---
 
 ## Disclaimer
 > **Note:** This GitHub repository is a mirror of a private, self-hosted GitLab repository.

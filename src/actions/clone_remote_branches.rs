@@ -62,9 +62,18 @@ fn clone_branches(repo_path: &str, quiet: bool) {
         .arg("--all")
         .output();
 
-    if let Err(err) = fetch_output {
-        eprintln!("{}", format!("❌ Error fetching remote branches for '{}': {:?}", repo_path, err).red());
-        return;
+    match fetch_output {
+        Ok(output) if output.status.success() => {}
+        Ok(output) => {
+            eprintln!("{}", format!("❌ Failed to fetch remote branches for '{}': {}",
+                repo_path,
+                String::from_utf8_lossy(&output.stderr)).red());
+            return;
+        }
+        Err(err) => {
+            eprintln!("{}", format!("❌ Error fetching remote branches for '{}': {:?}", repo_path, err).red());
+            return;
+        }
     }
 
     // list remote branches
@@ -77,7 +86,14 @@ fn clone_branches(repo_path: &str, quiet: bool) {
 
     match branch_output {
         Ok(output) if output.status.success() => {
-            let branches = String::from_utf8_lossy(&output.stdout);
+            let branches = match String::from_utf8(output.stdout) {
+                Ok(s) => s,
+                Err(_) => {
+                    eprintln!("{}", format!("❌ Remote branch list for '{}' contains invalid UTF-8.", repo_path).red());
+                    return;
+                }
+            };
+            let branches = branches.as_str();
 
             for branch in branches.lines() {
                 let branch = branch.trim();
@@ -144,9 +160,14 @@ fn clone_branches(repo_path: &str, quiet: bool) {
 
             if let Ok(output) = default_branch_output {
                 if output.status.success() {
-                    let default_branch = String::from_utf8_lossy(&output.stdout)
-                        .trim()
-                        .replace("refs/remotes/origin/", "");
+                    let raw = match String::from_utf8(output.stdout) {
+                        Ok(s) => s,
+                        Err(_) => {
+                            eprintln!("{}", "❌ Default branch name contains invalid UTF-8.".red());
+                            return;
+                        }
+                    };
+                    let default_branch = raw.trim().replace("refs/remotes/origin/", "");
 
                     let checkout_default_output = Command::new("git")
                         .arg("-C")

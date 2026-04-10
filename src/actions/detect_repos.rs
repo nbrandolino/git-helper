@@ -37,7 +37,10 @@ pub fn detect_repos(directory: &str, config_path: &Path, quiet: bool) {
     }
 
     if found_repos > 0 {
-        write_config(config_path, &config);
+        if let Err(err) = write_config(config_path, &config) {
+            eprintln!("{}", format!("❌ {}", err).red());
+            return;
+        }
     } else if !quiet {
         println!("{}", "⚠ No new Git repositories found.".yellow());
     }

@@ -29,15 +29,9 @@ pub fn read_config(config_path: &Path) -> Config {
     }
 }
 
-pub fn write_config(config_path: &Path, config: &Config) {
-    let content = match toml::to_string(config) {
-        Ok(c) => c,
-        Err(err) => {
-            eprintln!("{}", format!("❌ Failed to serialize configuration: {}", err).red());
-            return;
-        }
-    };
-    if let Err(err) = fs::write(config_path, content) {
-        eprintln!("{}", format!("❌ Failed to write configuration: {}", err).red());
-    }
+pub fn write_config(config_path: &Path, config: &Config) -> Result<(), String> {
+    let content = toml::to_string(config)
+        .map_err(|e| format!("Failed to serialize configuration: {}", e))?;
+    fs::write(config_path, content)
+        .map_err(|e| format!("Failed to write configuration: {}", e))
 }

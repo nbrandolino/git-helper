@@ -7,7 +7,10 @@ pub fn remove_repo(repo_identifier: &str, config_path: &Path, quiet: bool) {
 
     // full path
     if config.repositories.remove(repo_identifier) {
-        write_config(config_path, &config);
+        if let Err(err) = write_config(config_path, &config) {
+            eprintln!("{}", format!("❌ {}", err).red());
+            return;
+        }
         if !quiet {
             println!("{}", format!("✔ Removed repository: {}", repo_identifier).green());
         }
@@ -29,7 +32,10 @@ pub fn remove_repo(repo_identifier: &str, config_path: &Path, quiet: bool) {
         }
         1 => {
             config.repositories.remove(&matches[0]);
-            write_config(config_path, &config);
+            if let Err(err) = write_config(config_path, &config) {
+                eprintln!("{}", format!("❌ {}", err).red());
+                return;
+            }
             if !quiet {
                 println!("{}", format!("✔ Removed repository: {}", matches[0]).green());
             }

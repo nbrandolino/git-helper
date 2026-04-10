@@ -156,7 +156,7 @@ mod config_tests {
         repos.insert("/another/repo".to_string());
 
         let original = Config { repositories: repos };
-        write_config(&path, &original);
+        write_config(&path, &original).expect("write_config failed");
 
         let loaded = read_config(&path);
         assert_eq!(loaded.repositories, original.repositories);
@@ -171,7 +171,7 @@ mod config_tests {
         let mut repos = HashSet::new();
         repos.insert("/new/repo".to_string());
         let config = Config { repositories: repos };
-        write_config(&path, &config);
+        write_config(&path, &config).expect("write_config failed");
 
         let loaded = read_config(&path);
         assert!(!loaded.repositories.contains("/old/repo"));

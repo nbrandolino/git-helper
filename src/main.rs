@@ -2,11 +2,16 @@ use git_helper::cli;
 use git_helper::config;
 use git_helper::actions::*;
 use git_helper::utils;
+use std::io::IsTerminal;
 use std::path::PathBuf;
 use colored::Colorize;
 use dirs_next;
 
 fn main() {
+    if !std::io::stdout().is_terminal() {
+        colored::control::set_override(false);
+    }
+
     let matches = cli::build_cli().get_matches();
     let quiet = matches.get_flag("quiet");
 

@@ -24,7 +24,10 @@ pub fn add_repo(repo_path: &str, config_path: &Path, quiet: bool) {
         return;
     }
 
-    write_config(config_path, &config);
+    if let Err(err) = write_config(config_path, &config) {
+        eprintln!("{}", format!("❌ {}", err).red());
+        return;
+    }
     if !quiet {
         println!("{}", format!("✔ Added repository: {}", expanded_path.display()).green());
     }

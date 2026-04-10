@@ -3,6 +3,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use tempfile::TempDir;
+use std::os::unix::fs::PermissionsExt;
 
 // create a bare temporary directory that is NOT a git repo
 fn tmp_dir() -> TempDir {
@@ -458,5 +459,254 @@ mod cli_tests {
     fn invalid_flag_returns_error() {
         let result = build_cli().try_get_matches_from(["git-helper", "--not-a-real-flag"]);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn remove_repo_long_flag() {
+        let m = parse(&["git-helper", "--remove-repo", "myrepo"]);
+        assert_eq!(m.get_one::<String>("remove-repo").map(|s| s.as_str()), Some("myrepo"));
+    }
+
+    #[test]
+    fn pull_long_flag_sets_true() {
+        let m = parse(&["git-helper", "--pull"]);
+        assert!(m.get_flag("pull"));
+    }
+
+    #[test]
+    fn push_long_flag_sets_true() {
+        let m = parse(&["git-helper", "--push"]);
+        assert!(m.get_flag("push"));
+    }
+
+    #[test]
+    fn detect_repos_long_flag() {
+        let m = parse(&["git-helper", "--detect-repos", "."]);
+        assert_eq!(m.get_one::<String>("detect-repos").map(|s| s.as_str()), Some("."));
+    }
+}
+
+#[cfg(test)]
+mod add_repo_return_value_tests {
+    use super::*;
+    use git_helper::actions::add_repo::add_repo;
+
+    #[test]
+    fn returns_true_on_success() {
+        let repo = tmp_git_repo();
+        let cfg_dir = tmp_dir();
+        let cfg_path = cfg_dir.path().join("config.toml");
+        assert!(add_repo(repo.path().to_str().unwrap(), &cfg_path, true));
+    }
+
+    #[test]
+    fn returns_true_on_duplicate() {
+        let repo = tmp_git_repo();
+        let cfg_dir = tmp_dir();
+        let cfg_path = cfg_dir.path().join("config.toml");
+        let repo_str = repo.path().to_str().unwrap();
+        add_repo(repo_str, &cfg_path, true);
+        assert!(add_repo(repo_str, &cfg_path, true));
+    }
+
+    #[test]
+    fn returns_false_on_nonexistent_path() {
+        let cfg_dir = tmp_dir();
+        let cfg_path = cfg_dir.path().join("config.toml");
+        assert!(!add_repo("/this/path/does/not/exist", &cfg_path, true));
+    }
+
+    #[test]
+    fn returns_false_on_non_git_directory() {
+        let plain_dir = tmp_dir();
+        let cfg_dir = tmp_dir();
+        let cfg_path = cfg_dir.path().join("config.toml");
+        assert!(!add_repo(plain_dir.path().to_str().unwrap(), &cfg_path, true));
+    }
+}
+
+#[cfg(test)]
+mod remove_repo_return_value_tests {
+    use super::*;
+    use git_helper::actions::remove_repo::remove_repo;
+    use git_helper::config::read_config;
+
+    #[test]
+    fn returns_true_on_remove_by_full_path() {
+        let dir = tmp_dir();
+        let path = dir.path().join("config.toml");
+        write_toml(&path, &["/repo/foo"]);
+        assert!(remove_repo("/repo/foo", &path, true));
+    }
+
+    #[test]
+    fn returns_true_on_remove_by_name() {
+        let dir = tmp_dir();
+        let path = dir.path().join("config.toml");
+        write_toml(&path, &["/some/path/myrepo"]);
+        assert!(remove_repo("myrepo", &path, true));
+    }
+
+    #[test]
+    fn returns_false_when_not_found() {
+        let dir = tmp_dir();
+        let path = dir.path().join("config.toml");
+        write_toml(&path, &["/repo/existing"]);
+        assert!(!remove_repo("nonexistent", &path, true));
+    }
+
+    #[test]
+    fn returns_false_on_ambiguous_name() {
+        let dir = tmp_dir();
+        let path = dir.path().join("config.toml");
+        write_toml(&path, &["/path/one/myrepo", "/path/two/myrepo"]);
+        assert!(!remove_repo("myrepo", &path, true));
+    }
+
+    #[test]
+    fn removes_last_repo_leaving_empty_config() {
+        let dir = tmp_dir();
+        let path = dir.path().join("config.toml");
+        write_toml(&path, &["/only/repo"]);
+        remove_repo("/only/repo", &path, true);
+        let config = read_config(&path);
+        assert!(config.repositories.is_empty());
+    }
+}
+
+#[cfg(test)]
+mod detect_repos_return_value_tests {
+    use super::*;
+    use git_helper::actions::detect_repos::detect_repos;
+
+    #[test]
+    fn returns_true_on_success() {
+        let parent = tmp_dir();
+        let repo_path = parent.path().join("myrepo");
+        fs::create_dir_all(&repo_path).unwrap();
+        Command::new("git")
+            .args(["init", repo_path.to_str().unwrap()])
+            .output()
+            .unwrap();
+
+        let cfg_dir = tmp_dir();
+        let cfg_path = cfg_dir.path().join("config.toml");
+        assert!(detect_repos(parent.path().to_str().unwrap(), &cfg_path, true));
+    }
+
+    #[test]
+    fn returns_false_on_invalid_directory() {
+        let cfg_dir = tmp_dir();
+        let cfg_path = cfg_dir.path().join("config.toml");
+        assert!(!detect_repos("/this/does/not/exist", &cfg_path, true));
+    }
+
+    #[test]
+    fn returns_true_when_no_new_repos_found() {
+        let empty_dir = tmp_dir();
+        let cfg_dir = tmp_dir();
+        let cfg_path = cfg_dir.path().join("config.toml");
+        assert!(detect_repos(empty_dir.path().to_str().unwrap(), &cfg_path, true));
+    }
+}
+
+#[cfg(test)]
+mod list_repos_tests {
+    use super::*;
+    use git_helper::actions::list_repos::list_repos;
+
+    #[test]
+    fn does_not_panic_with_repos_in_config() {
+        let dir = tmp_dir();
+        let path = dir.path().join("config.toml");
+        write_toml(&path, &["/repo/a", "/repo/b"]);
+        list_repos(&path, true);
+    }
+
+    #[test]
+    fn does_not_panic_with_empty_config() {
+        let cfg_path = Path::new("/no/such/file.toml");
+        list_repos(cfg_path, true);
+    }
+
+    #[test]
+    fn quiet_mode_does_not_panic() {
+        let dir = tmp_dir();
+        let path = dir.path().join("config.toml");
+        write_toml(&path, &["/repo/a"]);
+        list_repos(&path, true);
+    }
+}
+
+#[cfg(test)]
+mod clone_remote_branches_tests {
+    use super::*;
+    use git_helper::actions::clone_remote_branches::clone_remote_branches;
+    use git_helper::config::{write_config, Config};
+
+    fn config_with_repos(repos: &[&str]) -> (TempDir, PathBuf) {
+        let dir = tmp_dir();
+        let path = dir.path().join("config.toml");
+        write_toml(&path, repos);
+        (dir, path)
+    }
+
+    #[test]
+    fn returns_false_when_identifier_not_in_config() {
+        let (_dir, path) = config_with_repos(&["/some/repo"]);
+        assert!(!clone_remote_branches("nonexistent", &path, true));
+    }
+
+    #[test]
+    fn returns_false_on_ambiguous_identifier() {
+        let (_dir, path) = config_with_repos(&["/path/one/myrepo", "/path/two/myrepo"]);
+        assert!(!clone_remote_branches("myrepo", &path, true));
+    }
+
+    #[test]
+    fn returns_true_for_all_with_empty_config() {
+        let dir = tmp_dir();
+        let path = dir.path().join("config.toml");
+        let config = Config::default();
+        write_config(&path, &config).expect("write_config failed");
+        assert!(clone_remote_branches("all", &path, true));
+    }
+
+    #[test]
+    fn returns_false_when_repo_path_does_not_exist_on_disk() {
+        let (_dir, path) = config_with_repos(&["/nonexistent/repo"]);
+        assert!(!clone_remote_branches("/nonexistent/repo", &path, true));
+    }
+}
+
+#[cfg(test)]
+mod config_error_tests {
+    use super::*;
+    use git_helper::config::write_config;
+    use git_helper::config::Config;
+
+    #[test]
+    fn write_config_returns_err_on_read_only_directory() {
+        let dir = tmp_dir();
+        // make the directory read-only so the write will fail
+        fs::set_permissions(dir.path(), fs::Permissions::from_mode(0o555)).unwrap();
+        let path = dir.path().join("config.toml");
+        let config = Config::default();
+        let result = write_config(&path, &config);
+        // restore permissions so TempDir can clean up
+        fs::set_permissions(dir.path(), fs::Permissions::from_mode(0o755)).unwrap();
+        assert!(result.is_err());
+    }
+}
+
+#[cfg(test)]
+mod expand_path_subdirectory_tests {
+    use git_helper::utils::expand_path;
+
+    #[test]
+    fn tilde_with_subdirectory_does_not_return_raw_tilde() {
+        if let Ok(expanded) = expand_path("~/some/subdir") {
+            assert!(!expanded.to_string_lossy().starts_with('~'));
+        }
     }
 }

@@ -1,17 +1,6 @@
 fedora43-test:
   extends: .test_template
-  image: quay.lab.vanth.io/nbrandolino/fedora:43
+  image: fedora:43
   stage: test
   tags:
     - lab
-
-  before_script:
-    - dnf upgrade -y
-    - dnf install
-        gcc gcc-c++
-        rpm-build rpmdevtools
-        openssl-devel pkg-config
-        git tar gzip -y
-
-    - curl https://sh.rustup.rs -sSf | sh -s -- -y
-    - source "$CARGO_HOME/env"

@@ -1,18 +1,6 @@
 el10-test:
   extends: .test_template
-  image: quay.lab.vanth.io/nbrandolino/rockylinux:10
+  image: rockylinux/rockylinux:10
   stage: test
   tags:
     - lab
-
-  before_script:
-    - dnf install epel-release -y
-    - dnf upgrade -y
-    - dnf install
-        gcc gcc-c++
-        rpm-build rpmdevtools
-        openssl-devel pkgconfig
-        git tar gzip -y
-
-    - curl https://sh.rustup.rs -sSf | sh -s -- -y
-    - source "$CARGO_HOME/env"

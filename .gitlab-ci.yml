@@ -13,12 +13,10 @@ stages:
 include:
   - local: ".gitlab/ci/templates/rpm-build.yaml"
   - local: ".gitlab/ci/templates/test.yaml"
-
   - local: ".gitlab/ci/build/el9-build.yaml"
   - local: ".gitlab/ci/build/el10-build.yaml"
   - local: ".gitlab/ci/build/fedora42-build.yaml"
   - local: ".gitlab/ci/build/fedora43-build.yaml"
-
   - local: ".gitlab/ci/test/el9-test.yaml"
   - local: ".gitlab/ci/test/el10-test.yaml"
   - local: ".gitlab/ci/test/fedora42-test.yaml"

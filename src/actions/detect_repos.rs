@@ -21,17 +21,23 @@ pub fn detect_repos(directory: &str, config_path: &Path, quiet: bool) -> bool {
     let mut config = read_config(config_path);
     let mut found_repos = 0;
 
-    if let Ok(entries) = fs::read_dir(dir_path) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.is_dir() && path.join(".git").exists() {
-                let repo_path = path.to_string_lossy().to_string();
-                if config.repositories.insert(repo_path.clone()) {
-                    if !quiet {
-                        println!("{}", format!("✔ Added Git repository: {}", repo_path).green());
-                    }
-                    found_repos += 1;
+    let entries = match fs::read_dir(&dir_path) {
+        Ok(e) => e,
+        Err(err) => {
+            eprintln!("{}", format!("❌ Failed to read directory '{}': {}", dir_path.display(), err).red());
+            return false;
+        }
+    };
+
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.is_dir() && path.join(".git").exists() {
+            let repo_path = path.to_string_lossy().to_string();
+            if config.repositories.insert(repo_path.clone()) {
+                if !quiet {
+                    println!("{}", format!("✔ Added Git repository: {}", repo_path).green());
                 }
+                found_repos += 1;
             }
         }
     }

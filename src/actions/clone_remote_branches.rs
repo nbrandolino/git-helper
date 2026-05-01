@@ -166,8 +166,8 @@ fn clone_branches(repo_path: &str, quiet: bool) -> bool {
                 .arg("refs/remotes/origin/HEAD")
                 .output();
 
-            if let Ok(output) = default_branch_output {
-                if output.status.success() {
+            match default_branch_output {
+                Ok(output) if output.status.success() => {
                     let raw = match String::from_utf8(output.stdout) {
                         Ok(s) => s,
                         Err(_) => {
@@ -202,8 +202,16 @@ fn clone_branches(repo_path: &str, quiet: bool) -> bool {
                             had_error = true;
                         }
                     }
-                } else {
-                    eprintln!("{}", "❌ Failed to determine default branch.".red());
+                }
+                Ok(output) => {
+                    eprintln!("{}", format!("❌ Failed to determine default branch for '{}': {}",
+                        repo_path,
+                        String::from_utf8_lossy(&output.stderr)).red());
+                    had_error = true;
+                }
+                Err(err) => {
+                    eprintln!("{}", format!("❌ Error determining default branch for '{}': {}",
+                        repo_path, err).red());
                     had_error = true;
                 }
             }

@@ -1,6 +1,6 @@
 [package]
 name = "git-helper"
-version = "2.8.0"
+version = "2.9.0"
 authors = ["nbrandolino <nickbrandolino134@gmail.com>"]
 description = "A command-line utility designed to simplify the management of multiple Git repositories."
 license = "GPL-3.0-or-later"

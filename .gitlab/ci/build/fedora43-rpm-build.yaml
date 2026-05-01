@@ -1,6 +1,6 @@
-fedora43-build:
+fedora43-rpm-build:
   extends: .rpm_build_template
   image: fedora:43
-  stage: package
+  stage: build
   tags:
     - lab

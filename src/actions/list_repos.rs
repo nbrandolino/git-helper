@@ -2,15 +2,12 @@ use crate::config::read_config;
 use colored::Colorize;
 use std::path::Path;
 
-pub fn list_repos(config_path: &Path, quiet: bool) {
+pub fn list_repos(config_path: &Path, quiet: bool) -> Result<(), String> {
     if quiet {
-        return;
+        return Ok(());
     }
 
-    let config = match read_config(config_path) {
-        Ok(c) => c,
-        Err(e) => { eprintln!("{}", e.red()); return; }
-    };
+    let config = read_config(config_path)?;
     if config.repositories.is_empty() {
         println!("{}", "⚠ No repositories configured.".yellow());
     } else {
@@ -19,4 +16,5 @@ pub fn list_repos(config_path: &Path, quiet: bool) {
             println!("- {}", repo);
         }
     }
+    Ok(())
 }

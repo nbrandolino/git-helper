@@ -110,7 +110,7 @@ mod ensure_config_dir_exists_tests {
         let base = tmp_dir();
         let config_path = base.path().join("a").join("b").join("config.toml");
         assert!(!config_path.parent().unwrap().exists());
-        ensure_config_dir_exists(&config_path);
+        ensure_config_dir_exists(&config_path).unwrap();
         assert!(config_path.parent().unwrap().exists());
     }
 
@@ -119,7 +119,7 @@ mod ensure_config_dir_exists_tests {
         let base = tmp_dir();
         let config_path = base.path().join("config.toml");
         // Parent already exists; should be a no-op
-        ensure_config_dir_exists(&config_path);
+        ensure_config_dir_exists(&config_path).unwrap();
         assert!(base.path().exists());
     }
 }
@@ -620,13 +620,13 @@ mod list_repos_tests {
         let dir = tmp_dir();
         let path = dir.path().join("config.toml");
         write_toml(&path, &["/repo/a", "/repo/b"]);
-        list_repos(&path, true);
+        list_repos(&path, true).unwrap();
     }
 
     #[test]
     fn does_not_panic_with_empty_config() {
         let cfg_path = Path::new("/no/such/file.toml");
-        list_repos(cfg_path, true);
+        list_repos(cfg_path, true).unwrap();
     }
 
     #[test]
@@ -634,7 +634,7 @@ mod list_repos_tests {
         let dir = tmp_dir();
         let path = dir.path().join("config.toml");
         write_toml(&path, &["/repo/a"]);
-        list_repos(&path, true);
+        list_repos(&path, true).unwrap();
     }
 }
 

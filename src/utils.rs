@@ -1,16 +1,14 @@
-use colored::Colorize;
 use std::path::{Path, PathBuf};
 use std::fs;
 
-pub fn ensure_config_dir_exists(config_path: &Path) {
+pub fn ensure_config_dir_exists(config_path: &Path) -> Result<(), String> {
     if let Some(parent_dir) = config_path.parent() {
         if !parent_dir.exists() {
-            if let Err(err) = fs::create_dir_all(parent_dir) {
-                eprintln!("{}", format!("❌ Failed to create configuration directory '{}': {}", parent_dir.display(), err).red());
-                std::process::exit(1);
-            }
+            fs::create_dir_all(parent_dir)
+                .map_err(|err| format!("❌ Failed to create configuration directory '{}': {}", parent_dir.display(), err))?;
         }
     }
+    Ok(())
 }
 
 pub fn expand_path(input: &str) -> Result<PathBuf, String> {

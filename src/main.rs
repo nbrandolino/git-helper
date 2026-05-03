@@ -28,7 +28,10 @@ fn main() {
             })
     };
 
-    utils::ensure_config_dir_exists(&config_path);
+    if let Err(e) = utils::ensure_config_dir_exists(&config_path) {
+        eprintln!("{}", e.red());
+        std::process::exit(1);
+    }
 
     let success = if let Some(repo_path) = matches.get_one::<String>("add-repo") {
         add_repo::add_repo(repo_path, &config_path, quiet)
@@ -37,8 +40,10 @@ fn main() {
         remove_repo::remove_repo(repo_identifier, &config_path, quiet)
     }
     else if matches.get_flag("list-repos") {
-        list_repos::list_repos(&config_path, quiet);
-        true
+        match list_repos::list_repos(&config_path, quiet) {
+            Ok(()) => true,
+            Err(e) => { eprintln!("{}", e.red()); false }
+        }
     }
     else if let Some(directory) = matches.get_one::<String>("detect-repos") {
         detect_repos::detect_repos(directory, &config_path, quiet)

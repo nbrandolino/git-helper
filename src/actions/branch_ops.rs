@@ -61,7 +61,7 @@ pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool)
     match status_output {
         Ok(output) if !output.stdout.is_empty() => {
             eprintln!("{}", format!("⚠ Skipping '{}': repository has uncommitted changes.", repo_path).yellow());
-            return true;
+            return false;
         }
         Err(err) => {
             eprintln!("{}", format!("❌ Error checking status of '{}': {:?}", repo_path, err).red());
@@ -91,7 +91,7 @@ pub fn run_on_branches(repo_path: &str, operation: BranchOperation, quiet: bool)
         }
         Ok(_) => {
             eprintln!("{}", format!("⚠ Skipping '{}': repository is in detached HEAD state.", repo_path).yellow());
-            return true;
+            return false;
         }
         Err(err) => {
             eprintln!("{}", format!("❌ Error determining current branch for '{}': {:?}", repo_path, err).red());

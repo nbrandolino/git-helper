@@ -131,7 +131,7 @@ mod config_tests {
 
     #[test]
     fn read_config_returns_default_when_file_missing() {
-        let config = read_config(Path::new("/no/such/file.toml"));
+        let config = read_config(Path::new("/no/such/file.toml")).unwrap();
         assert!(config.repositories.is_empty());
     }
 
@@ -141,7 +141,7 @@ mod config_tests {
         let path = dir.path().join("config.toml");
         write_toml(&path, &["/repo/a", "/repo/b"]);
 
-        let config = read_config(&path);
+        let config = read_config(&path).unwrap();
         assert_eq!(config.repositories.len(), 2);
         assert!(config.repositories.contains("/repo/a"));
         assert!(config.repositories.contains("/repo/b"));
@@ -159,7 +159,7 @@ mod config_tests {
         let original = Config { repositories: repos };
         write_config(&path, &original).expect("write_config failed");
 
-        let loaded = read_config(&path);
+        let loaded = read_config(&path).unwrap();
         assert_eq!(loaded.repositories, original.repositories);
     }
 
@@ -174,7 +174,7 @@ mod config_tests {
         let config = Config { repositories: repos };
         write_config(&path, &config).expect("write_config failed");
 
-        let loaded = read_config(&path);
+        let loaded = read_config(&path).unwrap();
         assert!(!loaded.repositories.contains("/old/repo"));
         assert!(loaded.repositories.contains("/new/repo"));
     }
@@ -194,7 +194,7 @@ mod add_repo_tests {
 
         add_repo(repo.path().to_str().unwrap(), &cfg_path, true);
 
-        let config = read_config(&cfg_path);
+        let config = read_config(&cfg_path).unwrap();
         let canonical = repo.path().canonicalize().unwrap();
         assert!(config.repositories.contains(canonical.to_str().unwrap()));
     }
@@ -209,7 +209,7 @@ mod add_repo_tests {
         add_repo(repo_str, &cfg_path, true);
         add_repo(repo_str, &cfg_path, true);
 
-        let config = read_config(&cfg_path);
+        let config = read_config(&cfg_path).unwrap();
         assert_eq!(config.repositories.len(), 1);
     }
 
@@ -221,7 +221,7 @@ mod add_repo_tests {
 
         add_repo(plain_dir.path().to_str().unwrap(), &cfg_path, true);
 
-        let config = read_config(&cfg_path);
+        let config = read_config(&cfg_path).unwrap();
         assert!(config.repositories.is_empty());
     }
 
@@ -232,7 +232,7 @@ mod add_repo_tests {
 
         add_repo("/this/path/does/not/exist", &cfg_path, true);
 
-        let config = read_config(&cfg_path);
+        let config = read_config(&cfg_path).unwrap();
         assert!(config.repositories.is_empty());
     }
 }
@@ -254,7 +254,7 @@ mod remove_repo_tests {
     fn removes_by_exact_full_path() {
         let (_dir, path) = setup_config_with_repos(&["/repo/foo", "/repo/bar"]);
         remove_repo("/repo/foo", &path, true);
-        let config = read_config(&path);
+        let config = read_config(&path).unwrap();
         assert!(!config.repositories.contains("/repo/foo"));
         assert!(config.repositories.contains("/repo/bar"));
     }
@@ -263,7 +263,7 @@ mod remove_repo_tests {
     fn removes_by_repo_name() {
         let (_dir, path) = setup_config_with_repos(&["/some/path/myrepo"]);
         remove_repo("myrepo", &path, true);
-        let config = read_config(&path);
+        let config = read_config(&path).unwrap();
         assert!(config.repositories.is_empty());
     }
 
@@ -271,7 +271,7 @@ mod remove_repo_tests {
     fn no_change_when_repo_not_found() {
         let (_dir, path) = setup_config_with_repos(&["/repo/existing"]);
         remove_repo("nonexistent", &path, true);
-        let config = read_config(&path);
+        let config = read_config(&path).unwrap();
         assert_eq!(config.repositories.len(), 1);
     }
 
@@ -282,7 +282,7 @@ mod remove_repo_tests {
             setup_config_with_repos(&["/path/one/myrepo", "/path/two/myrepo"]);
         remove_repo("myrepo", &path, true);
         // Both must still be present because the identifier is ambiguous.
-        let config = read_config(&path);
+        let config = read_config(&path).unwrap();
         assert_eq!(config.repositories.len(), 2);
     }
 }
@@ -315,7 +315,7 @@ mod detect_repos_tests {
 
         detect_repos(parent.path().to_str().unwrap(), &cfg_path, true);
 
-        let config = read_config(&cfg_path);
+        let config = read_config(&cfg_path).unwrap();
         assert_eq!(config.repositories.len(), 2);
     }
 
@@ -327,7 +327,7 @@ mod detect_repos_tests {
 
         detect_repos(parent.path().to_str().unwrap(), &cfg_path, true);
 
-        let config = read_config(&cfg_path);
+        let config = read_config(&cfg_path).unwrap();
         let has_not_repo = config
             .repositories
             .iter()
@@ -344,7 +344,7 @@ mod detect_repos_tests {
         detect_repos(parent.path().to_str().unwrap(), &cfg_path, true);
         detect_repos(parent.path().to_str().unwrap(), &cfg_path, true);
 
-        let config = read_config(&cfg_path);
+        let config = read_config(&cfg_path).unwrap();
         assert_eq!(config.repositories.len(), 2);
     }
 
@@ -356,7 +356,7 @@ mod detect_repos_tests {
         // Should not panic; config stays empty.
         detect_repos("/this/does/not/exist", &cfg_path, true);
 
-        let config = read_config(&cfg_path);
+        let config = read_config(&cfg_path).unwrap();
         assert!(config.repositories.is_empty());
     }
 }
@@ -569,7 +569,7 @@ mod remove_repo_return_value_tests {
         let path = dir.path().join("config.toml");
         write_toml(&path, &["/only/repo"]);
         remove_repo("/only/repo", &path, true);
-        let config = read_config(&path);
+        let config = read_config(&path).unwrap();
         assert!(config.repositories.is_empty());
     }
 }

@@ -7,7 +7,10 @@ pub fn list_repos(config_path: &Path, quiet: bool) {
         return;
     }
 
-    let config = read_config(config_path);
+    let config = match read_config(config_path) {
+        Ok(c) => c,
+        Err(e) => { eprintln!("{}", e.red()); return; }
+    };
     if config.repositories.is_empty() {
         println!("{}", "⚠ No repositories configured.".yellow());
     } else {

@@ -44,13 +44,19 @@ fn main() {
         detect_repos::detect_repos(directory, &config_path, quiet)
     }
     else if matches.get_flag("pull") {
-        let config = config::read_config(&config_path);
+        let config = match config::read_config(&config_path) {
+            Ok(c) => c,
+            Err(e) => { eprintln!("{}", e.red()); std::process::exit(1); }
+        };
         config.repositories.iter().fold(true, |ok, repo| {
             pull::pull(repo, quiet) && ok
         })
     }
     else if matches.get_flag("push") {
-        let config = config::read_config(&config_path);
+        let config = match config::read_config(&config_path) {
+            Ok(c) => c,
+            Err(e) => { eprintln!("{}", e.red()); std::process::exit(1); }
+        };
         config.repositories.iter().fold(true, |ok, repo| {
             push::push(repo, quiet) && ok
         })

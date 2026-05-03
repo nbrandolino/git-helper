@@ -5,7 +5,10 @@ use std::path::Path;
 use std::process::Command;
 
 pub fn clone_remote_branches(repo_identifier: &str, config_path: &Path, quiet: bool) -> bool {
-    let config = read_config(config_path);
+    let config = match read_config(config_path) {
+        Ok(c) => c,
+        Err(e) => { eprintln!("{}", e.red()); return false; }
+    };
 
     if repo_identifier == "all" {
         let mut success = true;
@@ -122,10 +125,15 @@ fn clone_branches(repo_path: &str, quiet: bool) -> bool {
                     .arg(&branch_name)
                     .output();
 
-                if let Ok(out) = local_check {
-                    if !out.stdout.is_empty() {
+                match local_check {
+                    Ok(out) if !out.stdout.is_empty() => continue,
+                    Err(err) => {
+                        eprintln!("{}", format!("❌ Failed to check local branch '{}' in '{}': {}",
+                            branch_name, repo_path, err).red());
+                        had_error = true;
                         continue;
                     }
+                    _ => {}
                 }
 
                 // checkout a local branch from the remote branch

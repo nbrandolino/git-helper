@@ -18,7 +18,10 @@ pub fn detect_repos(directory: &str, config_path: &Path, quiet: bool) -> bool {
         return false;
     }
 
-    let mut config = read_config(config_path);
+    let mut config = match read_config(config_path) {
+        Ok(c) => c,
+        Err(e) => { eprintln!("{}", e.red()); return false; }
+    };
     let mut found_repos = 0;
 
     let entries = match fs::read_dir(&dir_path) {

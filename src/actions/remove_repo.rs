@@ -3,7 +3,10 @@ use colored::Colorize;
 use std::path::Path;
 
 pub fn remove_repo(repo_identifier: &str, config_path: &Path, quiet: bool) -> bool {
-    let mut config = read_config(config_path);
+    let mut config = match read_config(config_path) {
+        Ok(c) => c,
+        Err(e) => { eprintln!("{}", e.red()); return false; }
+    };
 
     // full path
     if config.repositories.remove(repo_identifier) {

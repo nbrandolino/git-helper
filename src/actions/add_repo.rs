@@ -16,7 +16,10 @@ pub fn add_repo(repo_path: &str, config_path: &Path, quiet: bool) -> bool {
         return false;
     }
 
-    let mut config = read_config(config_path);
+    let mut config = match read_config(config_path) {
+        Ok(c) => c,
+        Err(e) => { eprintln!("{}", e.red()); return false; }
+    };
     if !config.repositories.insert(expanded_path.to_string_lossy().to_string()) {
         if !quiet {
             println!("{}", format!("⚠ Repository already exists: {}", repo_path).yellow());

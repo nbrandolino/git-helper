@@ -1,4 +1,3 @@
-use colored::Colorize;
 use std::fs;
 use std::io::ErrorKind;
 use serde::{Deserialize, Serialize};
@@ -10,22 +9,12 @@ pub struct Config {
     pub repositories: HashSet<String>,
 }
 
-pub fn read_config(config_path: &Path) -> Config {
+pub fn read_config(config_path: &Path) -> Result<Config, String> {
     match fs::read_to_string(config_path) {
-        Ok(content) => match toml::from_str(&content) {
-            Ok(config) => config,
-            Err(e) => {
-                eprintln!("{}", format!("❌ Error parsing config file '{}': {}", config_path.display(), e).red());
-                std::process::exit(1);
-            }
-        },
-        Err(e) if e.kind() == ErrorKind::NotFound => {
-            Config::default()
-        }
-        Err(e) => {
-            eprintln!("{}", format!("❌ Could not read config file '{}': {}", config_path.display(), e).red());
-            std::process::exit(1);
-        }
+        Ok(content) => toml::from_str(&content)
+            .map_err(|e| format!("❌ Error parsing config file '{}': {}", config_path.display(), e)),
+        Err(e) if e.kind() == ErrorKind::NotFound => Ok(Config::default()),
+        Err(e) => Err(format!("❌ Could not read config file '{}': {}", config_path.display(), e)),
     }
 }
 

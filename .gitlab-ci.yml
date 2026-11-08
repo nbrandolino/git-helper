@@ -21,6 +21,7 @@ include:
   - local: ".gitlab/ci/build/el10-rpm-build.yaml"
   - local: ".gitlab/ci/build/fedora43-rpm-build.yaml"
   - local: ".gitlab/ci/build/fedora44-rpm-build.yaml"
+  - local: ".gitlab/ci/build/fedora45-rpm-build.yaml"
 
   - local: ".gitlab/ci/test/el9-test.yaml"
   - local: ".gitlab/ci/test/el10-test.yaml"

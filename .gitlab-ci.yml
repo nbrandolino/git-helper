@@ -27,3 +27,4 @@ include:
   - local: ".gitlab/ci/test/el10-test.yaml"
   - local: ".gitlab/ci/test/fedora43-test.yaml"
   - local: ".gitlab/ci/test/fedora44-test.yaml"
+  - local: ".gitlab/ci/test/fedora45-test.yaml"
